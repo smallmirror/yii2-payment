@@ -1,0 +1,29 @@
+{
+  "name": "yuncms/yii2-payment",
+  "description": "The Yii Payment module",
+  "keywords": [
+    "yii",
+    "yii-payment",
+    "payment"
+  ],
+  "type": "yii2-extension",
+  "license": "BSD-3-Clause",
+  "support": {
+    "issues": "https://github.com/yuncms/yii2-payment/issues",
+    "source": "https://github.com/yuncms/yii2-payment"
+  },
+  "authors": [
+    {
+      "name": "yuncms",
+      "email": "dev@yuncms.net"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "~2.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "yuncms\\payment\\": ""
+    }
+  }
+}
