@@ -60,32 +60,6 @@ class DefaultController extends Controller
         return $this->render('index', ['model' => $model]);
     }
 
-    /**
-     * 从其他网页直接向本网页提交
-     * @return Response
-     */
-    public function actionGo()
-    {
-        $model = new Payment();
-        if (Yii::$app->request->getIsPost()) {
-            if (Yii::$app->language != 'zh-CN') {
-                $model->currency = 'USD';
-            } else {
-                $model->currency = 'CNY';
-            }
-            $model->pay_type = Payment::PAYTYPE_POINT;
-            $model->money = Yii::$app->request->post('money', 100);
-            if (Yii::$app->language != 'zh-CN') {
-                $model->payment = Yii::$app->request->post('payment', 'paypal');
-            } else {
-                $model->payment = Yii::$app->request->post('payment', 'alipay');
-            }
-            $model->save();
-            return $this->redirect(['/payment/default/pay', 'id' => $model->id]);
-        }
-        return $this->goBack();
-    }
-
     public function actionPay($id)
     {
         $payment = $this->findModel($id);
