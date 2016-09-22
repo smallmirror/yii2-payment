@@ -7,19 +7,10 @@
     "payment"
   ],
   "type": "yii2-extension",
-  "license": "BSD-3-Clause",
-  "support": {
-    "issues": "https://github.com/yuncms/yii2-payment/issues",
-    "source": "https://github.com/yuncms/yii2-payment"
-  },
-  "authors": [
-    {
-      "name": "yuncms",
-      "email": "dev@yuncms.net"
-    }
-  ],
+  "license": "MIT",
   "require": {
-    "yiisoft/yii2": "~2.0.0"
+    "yiisoft/yii2": "~2.0.0",
+    "yuncms/yii2-user": "~1.0"
   },
   "autoload": {
     "psr-4": {
