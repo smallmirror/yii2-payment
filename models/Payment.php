@@ -12,7 +12,7 @@ use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
 /**
- * Payment ActiveRecord .odel
+ * Payment ActiveRecord model
  *
  * Database fields:
  * @property integer $id
@@ -27,7 +27,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $memo
- * @package app\modules\payment\models
+ * @package yuncms\payment
  */
 class Payment extends ActiveRecord
 {

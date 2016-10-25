@@ -10,8 +10,8 @@ use Yii;
 use yii\helpers\Url;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
-use app\modules\payment\BaseGateway;
-use app\modules\payment\models\Payment;
+use yuncms\payment\BaseGateway;
+use yuncms\payment\models\Payment;
 
 class Alipay extends BaseGateway
 {
