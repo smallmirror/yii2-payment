@@ -81,7 +81,7 @@ class DefaultController extends Controller
     public function actionReturn($id)
     {
         $payment = $this->findModel($id);
-        if ($payment->pay_state == Payment::PAY_SUCCESS) {
+        if ($payment->pay_state == Payment::STATUS_SUCCESS) {
             Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Completion of payment.'));
         }
         return $this->redirect('/user/point/index');

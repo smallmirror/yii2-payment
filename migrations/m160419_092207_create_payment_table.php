@@ -31,8 +31,7 @@ class m160419_092207_create_payment_table extends Migration
             'ip' => $this->string()->notNull(),
             'note' => $this->text(),
             'created_at' => $this->integer()->notNull(),
-            'updated_at' => $this->integer()->notNull(),
-            'expiration_at' => $this->integer()->notNull(),
+            'updated_at' => $this->integer()->notNull()
         ], $tableOptions);
 
         $this->addPrimaryKey('', '{{%payment}}', 'id');

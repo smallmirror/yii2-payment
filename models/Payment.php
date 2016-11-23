@@ -31,27 +31,30 @@ use yii\behaviors\TimestampBehavior;
  */
 class Payment extends ActiveRecord
 {
-    const PAYTYPE_ONLINE = 1;
-    const PAYTYPE_OFFLINE = 2;
-    const PAYTYPE_RECHARGE = 3;
-    const PAYTYPE_POINT = 4;
+    //在线支付
+    const TYPE_ONLINE = 1;
+    //离线
+    const TYPE_OFFLINE = 2;
+    //充值
+    const TYPE_RECHARGE = 3;
+    //积分
+    const TYPE_POINT = 4;
 
     //支付状态
-
     //未支付
-    const PAY_NOTPAY = 0;
+    const STATUS_NOTPAY = 0;
     //支付成功
-    const PAY_SUCCESS = 1;
+    const STATUS_SUCCESS = 1;
     //支付失败
-    const PAY_FAILED = 2;
+    const STATUS_FAILED = 2;
     //转入退款
-    const PAY_REFUND = 3;
+    const STATUS_REFUND = 3;
     //已关闭
-    const PAY_CLOSED = 4;
+    const STATUS_CLOSED = 4;
     //已撤销
-    const PAY_REVOKED = 5;
+    const STATUS_REVOKED = 5;
     //错误
-    const PAY_ERROR = 6;
+    const STATUS_ERROR = 6;
 
     /**
      * @inheritdoc
@@ -66,7 +69,9 @@ class Payment extends ActiveRecord
      */
     public function behaviors()
     {
-        return [TimestampBehavior::className()];
+        return [
+            TimestampBehavior::className(),
+        ];
     }
 
     /** @inheritdoc */
@@ -75,24 +80,24 @@ class Payment extends ActiveRecord
         return [
             [['payment', 'currency', 'pay_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('app', 'This id has already been taken')],
-            ['pay_type', 'default', 'value' => self::PAYTYPE_ONLINE],
-            ['pay_type', 'in', 'range' => [self::PAYTYPE_ONLINE, self::PAYTYPE_OFFLINE, self::PAYTYPE_RECHARGE, self::PAYTYPE_POINT]],
-            ['pay_state', 'default', 'value' => self::PAY_NOTPAY],
-            ['pay_state', 'in', 'range' => [self::PAY_SUCCESS, self::PAY_FAILED, self::PAY_REFUND, self::PAY_NOTPAY, self::PAY_CLOSED, self::PAY_REVOKED, self::PAY_ERROR]],
+            ['pay_type', 'default', 'value' => self::TYPE_ONLINE],
+            ['pay_type', 'in', 'range' => [self::TYPE_ONLINE, self::TYPE_OFFLINE, self::TYPE_RECHARGE, self::TYPE_POINT]],
+            ['pay_state', 'default', 'value' => self::STATUS_NOTPAY],
+            ['pay_state', 'in', 'range' => [self::STATUS_SUCCESS, self::STATUS_FAILED, self::STATUS_REFUND, self::STATUS_NOTPAY, self::STATUS_CLOSED, self::STATUS_REVOKED, self::STATUS_ERROR]],
         ];
     }
 
     /** @inheritdoc */
     public function attributeLabels()
     {
-        return array_merge(parent::attributeHints(), [
+        return [
             'money' => Yii::t('payment', 'Money'),
             'payment' => Yii::t('payment', 'Payment method'),
-        ]);
+        ];
     }
 
     /**
-     * Generates new ID
+     * 生成付款流水号
      */
     public function generatePaymentId()
     {
@@ -103,32 +108,36 @@ class Payment extends ActiveRecord
             }
             $i++;
             $id = time() . str_pad($i, 4, '0', STR_PAD_LEFT);
-            $row = (new Query())->from(self::tableName())->where(['id' => $id])->exists();
+            $row = (new Query())->from(static::tableName())->where(['id' => $id])->exists();
         } while ($row);
         return $id;
     }
 
-    public function afterFind()
-    {
-        parent::afterFind();
-        $this->ip = long2ip($this->ip);
-    }
-
+    /**
+     * 保存前
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
             if ($insert) {
                 $this->id = $this->generatePaymentId();
                 $this->user_id = Yii::$app->user->getId();
+                $this->ip = Yii::$app->request->userIP;
             }
-            //IP转long
-            $this->ip = sprintf("%u", ip2long(Yii::$app->request->userIP));
             return true;
         } else {
             return false;
         }
     }
-    
+
+    public static function create($attribute)
+    {
+        $model = new static ($attribute);
+        return $model->save();
+    }
+
     /**
      * 设置支付状态
      * @param string $paymentId
@@ -138,18 +147,20 @@ class Payment extends ActiveRecord
      */
     public static function setPayStatus($paymentId, $status, $params)
     {
-        $payment = Payment::findOne(['id' => $paymentId]);
-        if ($payment && self::PAY_SUCCESS == $payment->pay_state) {
+        if (($payment = static::findOne(['id' => $paymentId])) == null) {
+            return false;
+        }
+        if (static::STATUS_SUCCESS == $payment->pay_state) {
             return true;
         }
-        if ($payment && $status == true) {
+        if ($status == true) {
             $payment->pay_id = $params['pay_id'];
-            $payment->pay_state = self::PAY_SUCCESS;
+            $payment->pay_state = static::STATUS_SUCCESS;
             $payment->memo = $params['message'];
             $payment->save();
-            if ($payment->pay_type == self::PAYTYPE_RECHARGE) {//充值
+            if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
                 Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . '充值');
-            } else if ($payment->pay_type == self::PAYTYPE_POINT) {//购买积分
+            } else if ($payment->pay_type == static::TYPE_POINT) {//购买积分
                 Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . '充值');
                 Purse::Change($payment->user_id, $payment->currency, -$payment->money, 'purchase', '积分购买');
                 $point = static::getPoint($payment->money, $payment->currency);
