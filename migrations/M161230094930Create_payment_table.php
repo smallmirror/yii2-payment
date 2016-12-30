@@ -1,14 +1,11 @@
 <?php
-/**
- * @link http://www.tintsoft.com/
- * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
- * @license http://www.tintsoft.com/license/
- */
+
+namespace yuncms\payment\migrations;
+
 use yii\db\Migration;
 
-class m160419_092207_create_payment_table extends Migration
+class M161230094930Create_payment_table extends Migration
 {
-
     public function up()
     {
         $tableOptions = null;
@@ -34,7 +31,7 @@ class m160419_092207_create_payment_table extends Migration
             'updated_at' => $this->integer()->notNull()
         ], $tableOptions);
 
-        $this->addPrimaryKey('', '{{%payment}}', 'id');
+        $this->addPrimaryKey('PK', '{{%payment}}', 'id');
     }
 
     public function down()
@@ -42,4 +39,14 @@ class m160419_092207_create_payment_table extends Migration
         $this->dropTable('{{%payment}}');
     }
 
+    /*
+    // Use safeUp/safeDown to run migration code within a transaction
+    public function safeUp()
+    {
+    }
+
+    public function safeDown()
+    {
+    }
+    */
 }

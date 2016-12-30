@@ -15,9 +15,9 @@ use yii\behaviors\TimestampBehavior;
  * Payment ActiveRecord model
  *
  * Database fields:
- * @property integer $id
- * @property integer $order_id
- * @property integer $user_id
+ * @property integer $id 付款ID
+ * @property integer $order_id 订单ID
+ * @property integer $user_id 用户ID
  * @property string $pay_type
  * @property string $password_hash
  * @property string $pay_id
@@ -94,6 +94,15 @@ class Payment extends ActiveRecord
             'money' => Yii::t('payment', 'Money'),
             'payment' => Yii::t('payment', 'Payment method'),
         ];
+    }
+
+    /**
+     * User Relation
+     * @return \yii\db\ActiveQueryInterface
+     */
+    public function getUser()
+    {
+        return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
     }
 
     /**
