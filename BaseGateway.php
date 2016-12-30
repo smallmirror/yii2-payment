@@ -7,17 +7,17 @@
 namespace yuncms\payment;
 
 use Yii;
+use yii\web\Request;
 use yii\helpers\Url;
+use yii\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\helpers\Json;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
-use yii\web\Request;
 use yii\base\InvalidConfigException;
 
 /**
- * Class BaseGateway
+ * 网关基类
  * @package yuncms\payment
  */
 abstract class BaseGateway extends Component implements GatewayInterface
@@ -122,6 +122,8 @@ abstract class BaseGateway extends Component implements GatewayInterface
     {
         return StringHelper::basename(get_class($this));
     }
+
+
 
     const CONTENT_TYPE_JSON = 'json'; // JSON format
     const CONTENT_TYPE_URLENCODED = 'urlencoded'; // urlencoded query string, like name1=value1&name2=value2

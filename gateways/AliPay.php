@@ -26,6 +26,9 @@ class Alipay extends BaseGateway
 
     public $redirectUrl = 'https://mapi.alipay.com/gateway.do';
 
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         parent::init();

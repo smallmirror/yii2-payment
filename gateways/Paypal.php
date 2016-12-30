@@ -31,7 +31,6 @@ class Paypal extends BaseGateway
             'item_number' => $payment->id,
             'amount' => round($payment->money, 2),
             'charset' => $this->charset,
-            'no_shipping' => 1,
             'rm' => 2,
             'return' => $this->getReturnUrl(),
             'cancel_return' => $this->getReturnUrl(),

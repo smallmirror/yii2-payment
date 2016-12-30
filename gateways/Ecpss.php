@@ -40,7 +40,7 @@ class Ecpss extends BaseGateway
             'orderTime' => date('YmdHis')
         ];
         $md5src = $this->merNo . '&' . $payment->id . '&' . $params['Amount'] . '&' . $params['ReturnURL'] . '&' . $this->md5Key;        //校验源字符串
-        $params['SignInfo'] = strtoupper(md5($md5src));        //MD5检验结果
+        $params['SignInfo'] = strtoupper(md5($md5src));//MD5检验结果
         $this->getRedirectResponse($params);
     }
 
