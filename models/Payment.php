@@ -80,9 +80,9 @@ class Payment extends ActiveRecord
             [['payment', 'currency', 'pay_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('app', 'This id has already been taken')],
             ['pay_type', 'default', 'value' => self::TYPE_ONLINE],
-            ['pay_type', 'in', 'range' => [self::TYPE_ONLINE, self::TYPE_OFFLINE, self::TYPE_RECHARGE, self::TYPE_POINT]],
-            ['pay_state', 'default', 'value' => self::STATUS_NOTPAY],
-            ['pay_state', 'in', 'range' => [self::STATUS_SUCCESS, self::STATUS_FAILED, self::STATUS_REFUND, self::STATUS_NOTPAY, self::STATUS_CLOSED, self::STATUS_REVOKED, self::STATUS_ERROR]],
+            ['pay_type', 'in', 'range' => [self::TYPE_ONLINE, self::TYPE_OFFLINE, self::TYPE_RECHARGE]],
+            ['pay_state', 'default', 'value' => self::STATUS_NOT_PAY],
+            ['pay_state', 'in', 'range' => [self::STATUS_SUCCESS, self::STATUS_FAILED, self::STATUS_REFUND, self::STATUS_NOT_PAY, self::STATUS_CLOSED, self::STATUS_REVOKED, self::STATUS_ERROR]],
         ];
     }
 
@@ -170,10 +170,10 @@ class Payment extends ActiveRecord
             return true;
         }
         if ($status == true) {
-            $payment->updateAttributes(['pay_id' => $params['pay_id'],'pay_state'=>static::STATUS_SUCCESS,'memo'=>$params['message']]);
+            $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'memo' => $params['message']]);
             $payment->save();
             if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
-                Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
             } else {//其他支付
 
             }

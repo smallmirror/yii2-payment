@@ -48,7 +48,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * 购买积分
+     * 充值
      * @return string
      */
     public function actionIndex()
@@ -60,6 +60,12 @@ class DefaultController extends Controller
         return $this->render('index', ['model' => $model]);
     }
 
+    /**
+     * 去付款
+     * @param int $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
     public function actionPay($id)
     {
         $payment = $this->findModel($id);
@@ -111,8 +117,9 @@ class DefaultController extends Controller
     }
 
     /**
-     * @param $id
-     * @return null|Payment
+     * 获取支付单号
+     * @param int $id
+     * @return Payment
      * @throws NotFoundHttpException
      */
     public function findModel($id)

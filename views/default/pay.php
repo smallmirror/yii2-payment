@@ -2,7 +2,7 @@
 
 use yii\helpers\Url;
 use yii\helpers\Html;
-
+use yuncms\system\widgets\JsBlock;
 ?>
 
 <?php
@@ -12,7 +12,7 @@ if (isset($res['qrCode'])) {
         <img style="margin:5rem 0 0" src="<?= $res['qrCode'] ?>">
         <p style="margin-top:10px">扫码二维码，微信支付</p>
     </div>
-    <?php \frontend\widgets\JsBlock::begin() ?>
+    <?php JsBlock::begin() ?>
     <script>
         function getOrderStatus() {
             $.get("<?=Url::to(['/payment/default/query', 'id' => $payment->id]);?>", function (result) {
@@ -25,7 +25,7 @@ if (isset($res['qrCode'])) {
             setInterval("getOrderStatus()", 3000);//1000为1秒钟
         });
     </script>
-    <?php \frontend\widgets\JsBlock::end() ?>
+    <?php JsBlock::end() ?>
     <?php
 } else {
     Yii::$app->request->enableCsrfValidation = false;
