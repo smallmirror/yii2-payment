@@ -27,6 +27,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $memo
+ * @property string $ip
  * @package yuncms\payment
  */
 class Payment extends ActiveRecord
@@ -37,12 +38,10 @@ class Payment extends ActiveRecord
     const TYPE_OFFLINE = 2;
     //充值
     const TYPE_RECHARGE = 3;
-    //积分
-    const TYPE_POINT = 4;
 
     //支付状态
     //未支付
-    const STATUS_NOTPAY = 0;
+    const STATUS_NOT_PAY = 0;
     //支付成功
     const STATUS_SUCCESS = 1;
     //支付失败
@@ -141,10 +140,18 @@ class Payment extends ActiveRecord
         }
     }
 
-    public static function create($attribute)
+    /**
+     * 快速创建实例
+     * @param array $attribute
+     * @return mixed
+     */
+    public static function create(array $attribute)
     {
         $model = new static ($attribute);
-        return $model->save();
+        if ($model->save()) {
+            return $model;
+        }
+        return false;
     }
 
     /**
@@ -163,17 +170,12 @@ class Payment extends ActiveRecord
             return true;
         }
         if ($status == true) {
-            $payment->pay_id = $params['pay_id'];
-            $payment->pay_state = static::STATUS_SUCCESS;
-            $payment->memo = $params['message'];
+            $payment->updateAttributes(['pay_id' => $params['pay_id'],'pay_state'=>static::STATUS_SUCCESS,'memo'=>$params['message']]);
             $payment->save();
             if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
-                Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . '充值');
-            } else if ($payment->pay_type == static::TYPE_POINT) {//购买积分
-                Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . '充值');
-                Purse::Change($payment->user_id, $payment->currency, -$payment->money, 'purchase', '积分购买');
-                $point = static::getPoint($payment->money, $payment->currency);
-                Purse::Change($payment->user_id, Purse::CURRENCY_POINT, $point, 'purchase', '购买积分' . $point);
+                Purse::Change($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+            } else {//其他支付
+
             }
             return true;
         }
