@@ -8,6 +8,11 @@ namespace yuncms\payment\models;
 
 use yii\db\ActiveRecord;
 
+/**
+ * Class Order
+ * @property int $id 订单号
+ * @package yuncms\payment\models
+ */
 class Order extends ActiveRecord
 {
     /**
