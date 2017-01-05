@@ -4,18 +4,15 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace app\modules\payment\gateways;
+namespace yuncms\payment\gateways;
 
 use Yii;
-use yii\helpers\Url;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
 use yuncms\payment\BaseGateway;
-use yuncms\payment\models\Payment;
 
-class Alipay extends BaseGateway
+class AliPay extends BaseGateway
 {
-
     public $partner;
     public $seller_email;
     public $key;
@@ -67,9 +64,7 @@ class Alipay extends BaseGateway
         $paraFilter = $this->paraFilter($params);
         $paraSort = $this->argSort($paraFilter);
         //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-        $prestr = $this->createLinkstring($paraSort);
-
-
+        $prestr = $this->createLinkString($paraSort);
 
         $params['sign'] = $this->createSign($prestr);
         $params['sign_type'] = strtoupper($this->signType);
@@ -123,7 +118,7 @@ class Alipay extends BaseGateway
         $paraFilter = $this->paraFilter($return);
         $paraSort = $this->argSort($paraFilter);
         //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-        $prestr = $this->createLinkstring($paraSort);
+        $prestr = $this->createLinkString($paraSort);
 
         $sign = $this->createSign($prestr);
 
@@ -147,19 +142,19 @@ class Alipay extends BaseGateway
     /**
      * Sends HTTP request.
      * @param string $method request type.
-     * @param string $url request URL.
+     * @param string $apiUrl request URL.
      * @param array $params request params.
      * @param array $headers additional request headers.
      * @return array response.
-     * @throws Exception on failure.
+     * @throws \yii\base\Exception on failure.
      */
-    public function api($url, $method, array $params = [], array $headers = [])
+    public function api($apiUrl, $method = 'GET', array $params = [], array $headers = [])
     {
         $client = new HttpClient();
         $response = $client->createRequest()
             ->setMethod($method)
             ->addHeaders($headers)
-            ->setUrl($url)
+            ->setUrl($apiUrl)
             ->setData($params)
             ->send();
         return $response->content;
@@ -167,8 +162,8 @@ class Alipay extends BaseGateway
 
     /**
      * 生成签名
-     * @param string $params
-     * @return mixed
+     * @param string $bizString
+     * @return string
      */
     private function createSign($bizString)
     {
@@ -180,7 +175,7 @@ class Alipay extends BaseGateway
      * @param array $para 需要拼接的数组
      * @return string 拼接完成以后的字符串
      */
-    private function createLinkstring($para)
+    private function createLinkString($para)
     {
         $arg = "";
         while (list ($key, $val) = each($para)) {
@@ -210,11 +205,14 @@ class Alipay extends BaseGateway
      */
     private function paraFilter($para)
     {
-        $para_filter = [];
+        $paraFilter = [];
         while (list ($key, $val) = each($para)) {
-            if ($key == "sign" || $key == "sign_type" || $val == "") continue;
-            else    $para_filter[$key] = $para[$key];
+            if ($key == "sign" || $key == "sign_type" || $val == "") {
+                continue;
+            } else {
+                $paraFilter[$key] = $para[$key];
+            }
         }
-        return $para_filter;
+        return $paraFilter;
     }
 }

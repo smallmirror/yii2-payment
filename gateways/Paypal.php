@@ -4,13 +4,13 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace app\modules\payment\gateways;
+namespace yuncms\payment\gateways;
 
 use Yii;
 use yii\helpers\Url;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
-use app\modules\payment\BaseGateway;
+use yuncms\payment\BaseGateway;
 
 class Paypal extends BaseGateway
 {

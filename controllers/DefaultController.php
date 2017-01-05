@@ -23,8 +23,6 @@ use yuncms\payment\gateways\WeChat;
  */
 class DefaultController extends Controller
 {
-    public $enableCsrfValidation = false;
-
     /**
      * @inheritdoc
      */
@@ -39,7 +37,7 @@ class DefaultController extends Controller
                     //已认证用户
                     [
                         'allow' => true,
-                        'actions' => ['index', 'go', 'pay', 'query', 'return', 'query'],
+                        'actions' => ['index', 'pay', 'query', 'return', 'query'],
                         'roles' => ['@']
                     ],
                 ]
@@ -48,7 +46,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * 充值
+     * 支付默认表单
      * @return string
      */
     public function actionIndex()
@@ -69,11 +67,11 @@ class DefaultController extends Controller
     public function actionPay($id)
     {
         $payment = $this->findModel($id);
-        if (!$this->module->hasGateway($payment->payment)) {
-            throw new NotFoundHttpException("Unknown payment gateway '{$payment->payment}'");
+        if (!$this->module->hasGateway($payment->gateway)) {
+            throw new NotFoundHttpException("Unknown payment gateway '{$payment->gateway}'");
         }
         /** @var \yuncms\payment\BaseGateway $gateway */
-        $gateway = $this->module->getGateway($payment->payment);
+        $gateway = $this->module->getGateway($payment->gateway);
         $response = $gateway->payment($payment);
         return $this->render('pay', ['res' => $response, 'payment' => $payment]);
     }
@@ -88,9 +86,16 @@ class DefaultController extends Controller
     {
         $payment = $this->findModel($id);
         if ($payment->pay_state == Payment::STATUS_SUCCESS) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Completion of payment.'));
+            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
         }
-        return $this->redirect('/user/point/index');
+        if ($payment->pay_type == Payment::TYPE_COIN) {
+            return $this->redirect('/user/coin/index');
+        } else if ($payment->pay_type == Payment::TYPE_OFFLINE) {
+            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Please wait for administrator to confirm.'));
+        } else if ($payment->pay_type == Payment::TYPE_ONLINE) {
+            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
+        }
+        return $this->redirect('/user/purse/index');
     }
 
     /**
@@ -102,11 +107,11 @@ class DefaultController extends Controller
     public function actionQuery($id)
     {
         $payment = $this->findModel($id);
-        if (!$this->module->hasGateway($payment->payment)) {
+        if (!$this->module->hasGateway($payment->gateway)) {
             throw new NotFoundHttpException("Unknown payment gateway '{$payment->payment}'");
         }
         /** @var \yuncms\payment\BaseGateway $gateway */
-        $gateway = $this->module->getGateway($payment->payment);
+        $gateway = $this->module->getGateway($payment->gateway);
         $status = $gateway->queryOrder($payment->id);
         Yii::$app->response->format = Response::FORMAT_JSON;
         if ($status) {

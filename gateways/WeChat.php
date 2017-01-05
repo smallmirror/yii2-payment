@@ -4,14 +4,14 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace app\modules\payment\gateways;
+namespace yuncms\payment\gateways;
 
 use Yii;
-use app\modules\payment\BaseGateway;
+use yuncms\payment\BaseGateway;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
-use app\modules\payment\models\Payment;
 use yii\web\Request;
+use yuncms\payment\models\Payment;
 
 class WeChat extends BaseGateway
 {

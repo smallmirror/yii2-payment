@@ -19,6 +19,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $order_id 订单ID
  * @property integer $user_id 用户ID
  * @property string $pay_type
+ * @property string $gateway 支付网关
  * @property string $password_hash
  * @property string $pay_id
  * @property integer $pay_state
@@ -38,6 +39,8 @@ class Payment extends ActiveRecord
     const TYPE_OFFLINE = 2;
     //充值
     const TYPE_RECHARGE = 3;
+    //购买金币
+    const TYPE_COIN = 4;
 
     //支付状态
     //未支付
@@ -77,12 +80,12 @@ class Payment extends ActiveRecord
     public function rules()
     {
         return [
-            [['payment', 'currency', 'pay_type', 'money'], 'required'],
+            [['gateway', 'currency', 'pay_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('app', 'This id has already been taken')],
-            ['pay_type', 'default', 'value' => self::TYPE_ONLINE],
-            ['pay_type', 'in', 'range' => [self::TYPE_ONLINE, self::TYPE_OFFLINE, self::TYPE_RECHARGE]],
-            ['pay_state', 'default', 'value' => self::STATUS_NOT_PAY],
-            ['pay_state', 'in', 'range' => [self::STATUS_SUCCESS, self::STATUS_FAILED, self::STATUS_REFUND, self::STATUS_NOT_PAY, self::STATUS_CLOSED, self::STATUS_REVOKED, self::STATUS_ERROR]],
+            ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
+            ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE,static::TYPE_COIN]],
+            ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
+            ['pay_state', 'in', 'range' => [static::STATUS_SUCCESS, static::STATUS_FAILED, static::STATUS_REFUND, static::STATUS_NOT_PAY, static::STATUS_CLOSED, static::STATUS_REVOKED, static::STATUS_ERROR]],
         ];
     }
 
@@ -91,7 +94,7 @@ class Payment extends ActiveRecord
     {
         return [
             'money' => Yii::t('payment', 'Money'),
-            'payment' => Yii::t('payment', 'Payment method'),
+            'gateway' => Yii::t('payment', 'Payment Gateway'),
         ];
     }
 
