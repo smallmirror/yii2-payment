@@ -10,7 +10,12 @@ use Yii;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
 use yuncms\payment\BaseGateway;
+use yuncms\payment\models\Payment;
 
+/**
+ * Class AliPay
+ * @package yuncms\payment\gateways
+ */
 class AliPay extends BaseGateway
 {
     public $partner;
@@ -50,10 +55,11 @@ class AliPay extends BaseGateway
     }
 
     /**
-     * @param array $payment
-     * @return array
+     * 支付
+     * @param Payment $payment
+     * @return void
      */
-    public function payment($payment = [])
+    public function payment(Payment $payment)
     {
         $params = $this->buildPaymentParameter([
             'out_trade_no' => $payment->id,
@@ -140,7 +146,7 @@ class AliPay extends BaseGateway
     }
 
     /**
-     * Sends HTTP request.
+     * 发送Http请求
      * @param string $method request type.
      * @param string $apiUrl request URL.
      * @param array $params request params.

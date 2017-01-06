@@ -83,7 +83,7 @@ class Payment extends ActiveRecord
             [['gateway', 'currency', 'pay_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('app', 'This id has already been taken')],
             ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
-            ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE,static::TYPE_COIN]],
+            ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE, static::TYPE_COIN]],
             ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
             ['pay_state', 'in', 'range' => [static::STATUS_SUCCESS, static::STATUS_FAILED, static::STATUS_REFUND, static::STATUS_NOT_PAY, static::STATUS_CLOSED, static::STATUS_REVOKED, static::STATUS_ERROR]],
         ];
@@ -177,8 +177,10 @@ class Payment extends ActiveRecord
             $payment->save();
             if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
                 Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
-            } else {//其他支付
+            } else if ($payment->pay_type == static::TYPE_COIN) {//购买金币
+                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
 
+                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', 'Buy Coin');
             }
             return true;
         }

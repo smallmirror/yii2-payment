@@ -66,10 +66,10 @@ class WeChat extends BaseGateway
 
     /**
      * 支付
-     * @param \app\modules\payment\models\Payment $payment
+     * @param Payment $payment
      * @return mixed
      */
-    public function payment($payment)
+    public function payment(Payment $payment)
     {
         $params = $this->buildPaymentParameter([
             'body' => !empty($payment->order_id) ? $payment->order_id : '充值',
