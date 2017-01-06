@@ -31,8 +31,6 @@ class DefaultController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                //对以下方式使用权限验证
-                'only' => ['index', 'callback', 'notice', 'go'],
                 'rules' => [
                     //已认证用户
                     [
@@ -72,8 +70,12 @@ class DefaultController extends Controller
         }
         /** @var \yuncms\payment\BaseGateway $gateway */
         $gateway = $this->module->getGateway($payment->gateway);
-        $response = $gateway->payment($payment);
-        return $this->render('pay', ['res' => $response, 'payment' => $payment]);
+        $paymentParams = [];
+        $gateway->payment($payment, $paymentParams);
+        if ($paymentParams) {
+            return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
+        }
+        return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
     }
 
     /**
@@ -88,6 +90,7 @@ class DefaultController extends Controller
         if ($payment->pay_state == Payment::STATUS_SUCCESS) {
             Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
         }
+
         if ($payment->pay_type == Payment::TYPE_COIN) {
             return $this->redirect('/user/coin/index');
         } else if ($payment->pay_type == Payment::TYPE_OFFLINE) {
@@ -106,6 +109,7 @@ class DefaultController extends Controller
      */
     public function actionQuery($id)
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
         $payment = $this->findModel($id);
         if (!$this->module->hasGateway($payment->gateway)) {
             throw new NotFoundHttpException("Unknown payment gateway '{$payment->payment}'");
@@ -113,11 +117,10 @@ class DefaultController extends Controller
         /** @var \yuncms\payment\BaseGateway $gateway */
         $gateway = $this->module->getGateway($payment->gateway);
         $status = $gateway->queryOrder($payment->id);
-        Yii::$app->response->format = Response::FORMAT_JSON;
         if ($status) {
-            return ['status' => 'succ'];
+            return ['status' => 'success'];
         } else {
-            return ['status' => 'failed'];
+            return ['status' => 'pending'];
         }
     }
 

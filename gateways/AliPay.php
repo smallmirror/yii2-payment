@@ -9,6 +9,7 @@ namespace yuncms\payment\gateways;
 use Yii;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
+use yii\base\InvalidConfigException;
 use yuncms\payment\BaseGateway;
 use yuncms\payment\models\Payment;
 
@@ -22,6 +23,8 @@ class AliPay extends BaseGateway
     public $seller_email;
     public $key;
 
+    public $currencies = ['CNY'];
+
     public $signType = 'MD5';
 
     public $redirectMethod = 'POST';
@@ -34,6 +37,15 @@ class AliPay extends BaseGateway
     public function init()
     {
         parent::init();
+        if (empty ($this->partner)) {
+            throw new InvalidConfigException ('The "partner" property must be set.');
+        }
+        if (empty ($this->seller_email)) {
+            throw new InvalidConfigException ('The "seller_email" property must be set.');
+        }
+        if (empty ($this->key)) {
+            throw new InvalidConfigException ('The "key" property must be set.');
+        }
         $this->signType = strtoupper($this->signType);
         $this->redirectUrl = $this->composeUrl($this->redirectUrl, ['_input_charset' => $this->charset]);
     }
@@ -55,26 +67,40 @@ class AliPay extends BaseGateway
     }
 
     /**
+     * 查询支付是否成功，对账作用
+     * @param string $paymentId
+     * @return mixed
+     */
+    public function queryOrder($paymentId){
+        return false;
+    }
+
+    /**
      * 支付
      * @param Payment $payment
+     * @param array $paymentParams 支付参数
      * @return void
      */
-    public function payment(Payment $payment)
+    public function payment(Payment $payment,&$paymentParams)
     {
-        $params = $this->buildPaymentParameter([
-            'out_trade_no' => $payment->id,
-            'subject' => !empty($payment->order_id) ? $payment->order_id . '付款' : '账号充值',
-            'total_fee' => round($payment->money, 2),
-        ]);
-        //签名结果与签名方式加入请求提交参数组中
-        $paraFilter = $this->paraFilter($params);
-        $paraSort = $this->argSort($paraFilter);
-        //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-        $prestr = $this->createLinkString($paraSort);
+        if(!$this->checkCurrency($payment->currency)){
+            Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
+        } else {
+            $params = $this->buildPaymentParameter([
+                'out_trade_no' => $payment->id,
+                'subject' => !empty($payment->order_id) ? $payment->order_id . '付款' : '账号充值',
+                'total_fee' => round($payment->money, 2),
+            ]);
+            //签名结果与签名方式加入请求提交参数组中
+            $paraFilter = $this->paraFilter($params);
+            $paraSort = $this->argSort($paraFilter);
+            //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            $prestr = $this->createLinkString($paraSort);
 
-        $params['sign'] = $this->createSign($prestr);
-        $params['sign_type'] = strtoupper($this->signType);
-        $this->getRedirectResponse($params);
+            $params['sign'] = $this->createSign($prestr);
+            $params['sign_type'] = strtoupper($this->signType);
+            $this->getRedirectResponse($params);
+        }
     }
 
     /**

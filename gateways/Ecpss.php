@@ -8,40 +8,80 @@
 namespace yuncms\payment\gateways;
 
 use Yii;
-use yii\helpers\Url;
 use yii\web\Request;
+use yii\base\InvalidConfigException;
 use yuncms\payment\BaseGateway;
 use yuncms\payment\models\Payment;
 
-
+/**
+ * 汇潮支付 接口
+ * @package yuncms\payment\gateways
+ */
 class Ecpss extends BaseGateway
 {
     public $merNo;
     public $md5Key;
 
+    /**
+     * @var string 默认走银联
+     */
+    public $defaultBankNumber = 'UNIONPAY';
+    public $currencies = ['CNY'];
+
     public $redirectMethod = 'POST';
     public $redirectUrl = 'https://pay.ecpss.com/sslpayment';
 
     /**
-     * @param array $payment
-     * @return array
+     * @inheritdoc
      */
-    public function payment($payment = [])
+    public function init()
     {
-        $params = [
-            'MerNo' => $this->merNo,
-            'BillNo' => $payment->id,
-            'Amount' => round($payment->money, 2),
-            'ReturnURL' => $this->getReturnUrl(),
-            'AdviceURL' => $this->getNoticeUrl(),
-            'products' => !empty($payment->order_id) ? $payment->order_id : '充值',
-            'Remark' => 'Remark',
-            'defaultBankNumber' => 'UNIONPAY',//默认走银联
-            'orderTime' => date('YmdHis')
-        ];
-        $md5src = $this->merNo . '&' . $payment->id . '&' . $params['Amount'] . '&' . $params['ReturnURL'] . '&' . $this->md5Key;        //校验源字符串
-        $params['SignInfo'] = strtoupper(md5($md5src));//MD5检验结果
-        $this->getRedirectResponse($params);
+        parent::init();
+        if (empty ($this->merNo)) {
+            throw new InvalidConfigException ('The "merNo" property must be set.');
+        }
+        if (empty ($this->md5Key)) {
+            throw new InvalidConfigException ('The "md5Key" property must be set.');
+        }
+        $this->redirectUrl = $this->composeUrl($this->redirectUrl, ['_input_charset' => $this->charset]);
+    }
+
+    /**
+     * 查询支付是否成功，对账作用
+     * @param string $paymentId
+     * @return mixed
+     */
+    public function queryOrder($paymentId)
+    {
+        return false;
+    }
+
+    /**
+     * 去支付
+     * @param Payment $payment
+     * @param array $paymentParams 支付参数
+     * @return void
+     */
+    public function payment(Payment $payment, &$paymentParams)
+    {
+        if (!$this->checkCurrency($payment->currency)) {
+            Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
+        } else {
+            $params = [
+                'MerNo' => $this->merNo,
+                'BillNo' => $payment->id,
+                'Amount' => round($payment->money, 2),
+                'ReturnURL' => $this->getReturnUrl(),
+                'AdviceURL' => $this->getNoticeUrl(),
+                'products' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'Remark' => 'Remark',
+                'defaultBankNumber' => $this->defaultBankNumber,
+                'orderTime' => date('YmdHis')
+            ];
+            $md5src = $this->merNo . '&' . $payment->id . '&' . $params['Amount'] . '&' . $params['ReturnURL'] . '&' . $this->md5Key;        //校验源字符串
+            $params['SignInfo'] = strtoupper(md5($md5src));//MD5检验结果
+            $this->getRedirectResponse($params);
+        }
     }
 
     /**

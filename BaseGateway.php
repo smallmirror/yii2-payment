@@ -9,12 +9,14 @@ namespace yuncms\payment;
 use Yii;
 use yii\web\Request;
 use yii\helpers\Url;
-use yii\base\Component;
 use yii\base\Exception;
+use yii\base\Component;
+use yii\httpclient\Client;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use yii\base\InvalidConfigException;
 use yuncms\payment\models\Payment;
+use Endroid\QrCode\QrCode;
 
 /**
  * 网关基类
@@ -74,6 +76,21 @@ abstract class BaseGateway extends Component implements GatewayInterface
     public $_noticeUrl;
 
     /**
+     * @var Client
+     */
+    public $_httpClient;
+
+    /**
+     * @var array 支持的币种
+     */
+    public $currencies = [];
+
+    /**
+     * @var bool 是否开启Debug
+     */
+    public $debug = false;
+
+    /**
      * @throws InvalidConfigException
      */
     public function init()
@@ -82,6 +99,18 @@ abstract class BaseGateway extends Component implements GatewayInterface
         if (empty ($this->id)) {
             throw new InvalidConfigException ('The "id" property must be set.');
         }
+    }
+
+    /**
+     * 获取Http Client
+     * @return Client
+     */
+    public function getHttpClient()
+    {
+        if (!is_object($this->_httpClient)) {
+            $this->_httpClient = new Client();
+        }
+        return $this->_httpClient;
     }
 
     /**
@@ -141,6 +170,41 @@ abstract class BaseGateway extends Component implements GatewayInterface
         }
 
         return $this->_title;
+    }
+
+    /**
+     * 检查币种是否受支持
+     * @param string $currency 合法的货币代码
+     * @return boolean
+     */
+    public function checkCurrency($currency)
+    {
+        return in_array($currency, $this->currencies);
+    }
+
+    /**
+     * 获取货币代码
+     * @param string $currency 合法的货币代码
+     * @return integer|null
+     */
+    public function getCurrencyNumeric($currency)
+    {
+        if ($currencyObj = Currency::find($currency)) {
+            return $currencyObj->getNumeric();
+        }
+    }
+
+    /**
+     * 获取货币小数位
+     * @param string $currency 合法的货币代码
+     * @return integer
+     */
+    public function getCurrencyDecimalPlaces($currency)
+    {
+        if ($currencyObj = Currency::find($currency)) {
+            return $currencyObj->getDecimals();
+        }
+        return 2;
     }
 
     /**
@@ -279,7 +343,7 @@ abstract class BaseGateway extends Component implements GatewayInterface
     }
 
     /**
-     * 获取跳转
+     * 跳转去支付
      * @param array $params
      * @throws \Exception
      */
@@ -289,7 +353,6 @@ abstract class BaseGateway extends Component implements GatewayInterface
             $url = $this->composeUrl($this->redirectUrl, $params);
             Yii::$app->response->redirect($url);
             Yii::$app->end();
-
         } elseif ('POST' === $this->redirectMethod) {
             $hiddenFields = '';
             foreach ($params as $key => $value) {
@@ -297,7 +360,7 @@ abstract class BaseGateway extends Component implements GatewayInterface
                         '<input type="hidden" name="%1$s" value="%2$s" />',
                         htmlentities($key, ENT_QUOTES, 'UTF-8', false),
                         htmlentities($value, ENT_QUOTES, 'UTF-8', false)
-                    )."\n";
+                    ) . "\n";
             }
             $output = '<!DOCTYPE html>
 <html>
@@ -326,7 +389,48 @@ abstract class BaseGateway extends Component implements GatewayInterface
             Yii::$app->end();
         }
 
-        throw new \Exception('Invalid redirect method "'.$this->redirectMethod.'".');
+        throw new \Exception('Invalid redirect method "' . $this->redirectMethod . '".');
+    }
+
+    /**
+     * Sends HTTP request.
+     * @param string $method request type.
+     * @param string $url request URL.
+     * @param array $params request params.
+     * @param array $headers additional request headers.
+     * @return object response.
+     * @throws Exception on failure.
+     */
+    protected function sendRequest($method, $url, array $params = [], array $headers = [])
+    {
+        $response = $request = $this->getHttpClient()->createRequest()
+            ->setUrl($url)
+            ->setMethod($method)
+            ->setHeaders($headers)
+            ->setData($params)
+            ->send();
+        if (!$response->isOk && $this->debug) {
+            throw new Exception ('Http request failed.');
+        }
+        return $response;
+    }
+
+    /**
+     * 发送API请求
+     * @param string $url
+     * @param string $method
+     * @param array $params
+     * @param array $headers
+     * @return object response.
+     */
+    public function api($url, $method, array $params = [], array $headers = [])
+    {
+        try {
+            return $this->sendRequest($method, $url, $params, $headers);
+        } catch (\Exception $e) {
+            sleep(2);
+            return $this->sendRequest($method, $url, $params, $headers);
+        }
     }
 
     /**
@@ -348,10 +452,11 @@ abstract class BaseGateway extends Component implements GatewayInterface
 
     /**
      * 去支付
-     * @param Payment $payment
-     * @return mixed|void
+     * @param Payment $payment 支付模型对象
+     * @param array $paymentParams 支付参数
+     * @return void
      */
-    abstract function payment(Payment $payment);
+    abstract function payment(Payment $payment, &$paymentParams);
 
     /**
      * 支付响应
@@ -375,5 +480,11 @@ abstract class BaseGateway extends Component implements GatewayInterface
      */
     abstract public function notice(Request $request, &$paymentId, &$money, &$message, &$payId);
 
+    /**
+     * 查询支付是否成功，对账作用
+     * @param string $paymentId
+     * @return mixed
+     */
+    abstract public function queryOrder($paymentId);
 
 }

@@ -11,33 +11,55 @@ use yii\helpers\Url;
 use yii\web\Request;
 use yii\httpclient\Client as HttpClient;
 use yuncms\payment\BaseGateway;
+use yuncms\payment\models\Payment;
 
-class Paypal extends BaseGateway
+class PayPal extends BaseGateway
 {
     public $business;
+
+    public $currencies = ['USD'];
 
     public $redirectMethod = 'POST';
 
     public $redirectUrl = 'https://www.paypal.com/cgi-bin/webscr';
 
-    public function payment($payment = [])
+    /**
+     * 去支付
+     * @param Payment $payment
+     * @param array $paymentParams 支付参数
+     * @return void
+     */
+    public function payment(Payment $payment, &$paymentParams)
     {
-        $params = [
-            'cmd' => '_xclick',
-            'no_shipping' => 1,
-            'business' => $this->business,
-            'currency_code' => 'USD',//$payment->currency,
-            'item_name' => !empty($payment->order_id) ? $payment->order_id : '充值',
-            'item_number' => $payment->id,
-            'amount' => round($payment->money, 2),
-            'charset' => $this->charset,
-            'rm' => 2,
-            'return' => $this->getReturnUrl(),
-            'cancel_return' => $this->getReturnUrl(),
-            'notify_url' => $this->getNoticeUrl(),
-        ];
+        if(!$this->checkCurrency($payment->currency)){
+            Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
+        } else {
+            $params = [
+                'cmd' => '_xclick',
+                'no_shipping' => 1,
+                'business' => $this->business,
+                'currency_code' => $payment->currency,
+                'item_name' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'item_number' => $payment->id,
+                'amount' => round($payment->money, 2),
+                'charset' => $this->charset,
+                'rm' => 2,
+                'return' => $this->getReturnUrl(),
+                'cancel_return' => $this->getReturnUrl(),
+                'notify_url' => $this->getNoticeUrl(),
+            ];
 
-        $this->getRedirectResponse($params);
+            $this->getRedirectResponse($params);
+        }
+    }
+
+    /**
+     * 查询支付是否成功，对账作用
+     * @param string $paymentId
+     * @return mixed
+     */
+    public function queryOrder($paymentId){
+        return false;
     }
 
     public function callback(Request $request, &$paymentId, &$money, &$message, &$payId)

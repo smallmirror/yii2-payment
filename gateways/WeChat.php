@@ -7,11 +7,13 @@
 namespace yuncms\payment\gateways;
 
 use Yii;
-use yuncms\payment\BaseGateway;
-use yii\helpers\FileHelper;
-use yii\helpers\Url;
 use yii\web\Request;
+use yii\base\Exception;
+use yii\httpclient\Client;
+use yii\base\InvalidConfigException;
+use yuncms\payment\BaseGateway;
 use yuncms\payment\models\Payment;
+use Endroid\QrCode\QrCode;
 
 class WeChat extends BaseGateway
 {
@@ -27,11 +29,6 @@ class WeChat extends BaseGateway
     public $appKey;
 
     /**
-     * @var string 公众帐号secert
-     */
-    public $appSecret;
-
-    /**
      * @var string 商户号
      */
     public $mchId;
@@ -45,6 +42,44 @@ class WeChat extends BaseGateway
      * @var string 商户账户密钥路径
      */
     public $sslKey;
+
+    public $currencies = ['CNY','USD'];
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        if (empty ($this->appId)) {
+            throw new InvalidConfigException ('The "appId" property must be set.');
+        }
+        if (empty ($this->appKey)) {
+            throw new InvalidConfigException ('The "appKey" property must be set.');
+        }
+        if (empty ($this->mchId)) {
+            throw new InvalidConfigException ('The "mchId" property must be set.');
+        }
+    }
+
+    /**
+     * 获取Http Client
+     * @return Client
+     */
+    public function getHttpClient()
+    {
+        if (!is_object($this->_httpClient)) {
+            $this->_httpClient = new Client([
+                'requestConfig' => [
+                    'format' => Client::FORMAT_XML
+                ],
+                'responseConfig' => [
+                    'format' => Client::FORMAT_XML
+                ],
+            ]);
+        }
+        return $this->_httpClient;
+    }
 
     /**
      * 编译支付参数
@@ -65,30 +100,32 @@ class WeChat extends BaseGateway
     }
 
     /**
-     * 支付
+     * 生成支付二维码
      * @param Payment $payment
-     * @return mixed
+     * @param array $paymentParams 支付参数
+     * @return void
      */
-    public function payment(Payment $payment)
+    public function payment(Payment $payment,&$paymentParams)
     {
-        $params = $this->buildPaymentParameter([
-            'body' => !empty($payment->order_id) ? $payment->order_id : '充值',
-            'out_trade_no' => $payment->id,
-            'total_fee' => round($payment->money * 100),
-            'fee_type' => $payment->currency,
-            'spbill_create_ip' => $payment->ip,
-        ]);
-        $params['sign'] = $this->createSign($params);
-        $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
-        if (isset($response['prepay_id'])) {
-            $payment->setAttribute('pay_id', $response['prepay_id']);
-            $payment->save();
+        if(!$this->checkCurrency($payment->currency)){
+            Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
+        } else {
+            $params = $this->buildPaymentParameter([
+                'body' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'out_trade_no' => $payment->id,
+                'total_fee' => round($payment->money * 100),
+                'fee_type' => $payment->currency,
+                'spbill_create_ip' => $payment->ip,
+            ]);
+            $params['sign'] = $this->createSign($params);
+            $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
+            if (isset($response->data['prepay_id']) && isset($response->data['code_url'])) {
+                $payment->updateAttributes(['pay_id' => $response->data['prepay_id']]);
+                $paymentParams['data'] = (new QrCode())->setText($response->data['code_url'])->setSize(240)->setPadding(10)->getDataUri();
+            } else {
+                Yii::$app->session->setFlash(Yii::t('payment', 'The server is busy. Please try again!'));
+            }
         }
-        if (isset($response['code_url'])) {
-            $qrCode = new \Endroid\QrCode\QrCode(); // Use Endroid\QrCode to generate the QR code
-            $response['qrCode'] = $qrCode->setText($response['code_url'])->setSize(240)->setPadding(10)->getDataUri();
-        }
-        return $response;
     }
 
     /**
@@ -100,8 +137,9 @@ class WeChat extends BaseGateway
      * @param $payId
      * @return mixed
      */
-    public function callback(Request $request, &$paymentId, &$money, &$message, &$payId){
-        echo '开始跳转';
+    public function callback(Request $request, &$paymentId, &$money, &$message, &$payId)
+    {
+        return;
     }
 
     /**
@@ -113,19 +151,19 @@ class WeChat extends BaseGateway
      * @param $payId
      * @return mixed
      */
-    public function notice(Request $request, &$paymentId, &$money, &$message, &$payId){
+    public function notice(Request $request, &$paymentId, &$money, &$message, &$payId)
+    {
         $xml = $request->getRawBody();
 
         //如果返回成功则验证签名
         try {
             $params = $this->convertXmlToArray($xml);
-
             $paymentId = $params['out_trade_no'];
             $money = $params['total_fee'];
             $message = $params['return_code'];
             $payId = $params['transaction_id'];
-            if($params['return_code'] == 'SUCCESS'){
-                if($params['sign'] == $this->createSign($params)){
+            if ($params['return_code'] == 'SUCCESS') {
+                if ($params['sign'] == $this->createSign($params)) {
                     echo '<xml>
   <return_code><![CDATA[SUCCESS]]></return_code>
   <return_msg><![CDATA[OK]]></return_msg>
@@ -145,7 +183,8 @@ class WeChat extends BaseGateway
 
     /**
      * 查询订单支付状态
-     * @param $payment
+     * @param string $paymentId
+     * @return boolean
      */
     public function queryOrder($paymentId)
     {
@@ -157,7 +196,7 @@ class WeChat extends BaseGateway
         ];
         $params['sign'] = $this->createSign($params);
         $response = $this->api('https://api.mch.weixin.qq.com/pay/orderquery', 'POST', $params);
-        if ($response['trade_state'] == 'SUCCESS') {
+        if ($response->data['trade_state'] == 'SUCCESS') {
             return true;
         }
         return false;
@@ -194,52 +233,6 @@ class WeChat extends BaseGateway
     }
 
     /**
-     * Composes HTTP request CUrl options, which will be merged with the default ones.
-     * @param string $method request type.
-     * @param string $url request URL.
-     * @param array $params request params.
-     * @return array CUrl options.
-     * @throws Exception on failure.
-     */
-    protected function composeRequestCurlOptions($method, $url, array $params)
-    {
-        $curlOptions = [];
-        switch ($method) {
-            case 'GET': {
-                $curlOptions[CURLOPT_URL] = $this->composeUrl($url, $params);
-                break;
-            }
-            case 'POST': {
-
-                $curlOptions[CURLOPT_POST] = true;
-                $curlOptions[CURLOPT_HTTPHEADER] = ['Content-type: application/x-www-form-urlencoded'];
-                $curlOptions[CURLOPT_POSTFIELDS] = $this->convertArrayToXml($params);
-                break;
-            }
-            case 'HEAD': {
-                $curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
-                if (!empty($params)) {
-                    $curlOptions[CURLOPT_URL] = $this->composeUrl($url, $params);
-                }
-                break;
-            }
-            default: {
-                $curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
-                if (!empty($params)) {
-                    $curlOptions[CURLOPT_POSTFIELDS] = $params;
-                }
-            }
-        }
-        return $curlOptions;
-    }
-
-    protected function processResponse($rawResponse, $contentType = self::CONTENT_TYPE_AUTO)
-    {
-        $contentType = self::CONTENT_TYPE_XML;
-        return parent::processResponse($rawResponse, $contentType);
-    }
-
-    /**
      * 转换XML到数组
      * @param \SimpleXMLElement|string $xml
      * @return array
@@ -248,25 +241,5 @@ class WeChat extends BaseGateway
     {
         libxml_disable_entity_loader(true);
         return json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-    }
-
-    /**
-     * 将数组转换成xml
-     * @param array $array
-     * @return string
-     */
-    protected function convertArrayToXml(array $array)
-    {
-        $xml = "<xml>";
-        foreach ($array as $key => $val) {
-            if (is_numeric($val)) {
-                $xml .= "<" . $key . ">" . $val . "</" . $key . ">";
-
-            } else {
-                $xml .= "<" . $key . "><![CDATA[" . $val . "]]></" . $key . ">";
-            }
-        }
-        $xml .= "</xml>";
-        return $xml;
     }
 }

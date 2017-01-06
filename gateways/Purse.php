@@ -15,10 +15,11 @@ class Purse extends BaseGateway
 {
     /**
      * 支付
-     * @param \app\modules\payment\models\Payment $payment
+     * @param Payment $payment
+     * @param array $paymentParams 支付参数
      * @return mixed
      */
-    public function payment($payment)
+    public function payment(Payment $payment, &$paymentParams)
     {
         //从余额扣钱并返回
     }
@@ -32,7 +33,8 @@ class Purse extends BaseGateway
      * @param $payId
      * @return mixed
      */
-    public function callback(Request $request, &$paymentId, &$money, &$message, &$payId){
+    public function callback(Request $request, &$paymentId, &$money, &$message, &$payId)
+    {
         echo '开始跳转';
     }
 
@@ -45,7 +47,8 @@ class Purse extends BaseGateway
      * @param $payId
      * @return mixed
      */
-    public function notice(Request $request, &$paymentId, &$money, &$message, &$payId){
+    public function notice(Request $request, &$paymentId, &$money, &$message, &$payId)
+    {
 
     }
 }
