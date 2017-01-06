@@ -9,7 +9,7 @@ use yii\helpers\ArrayHelper;
         <?= $this->render('@yuncms/user/views/setting/_menu') ?>
     </div>
     <div class="col-md-10">
-        <h2 class="h3 post-title"><?= Yii::t('payment', 'Recharge') ?></h2>
+        <h2 class="h3 profile-title"><?= Yii::t('payment', 'Payment') ?></h2>
         <div class="row">
             <div class="col-md-12">
                 <?php $form = ActiveForm::begin([

@@ -17,7 +17,10 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
+    'Payment' => '付款',
     'Money' => '金额',
+    'Currency' => '币种',
+    'Pay Type' => '付款类型',
     'Payment Gateway' => '支付网关',
     'Completion of payment.' => '支付完成。',
     'Please wait for administrator to confirm' => '请等待管理员确认。',

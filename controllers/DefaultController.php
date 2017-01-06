@@ -12,9 +12,7 @@ use yii\web\Response;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
-use common\models\Purse;
 use yuncms\payment\models\Payment;
-use yuncms\payment\gateways\WeChat;
 
 /**
  * Class DefaultController

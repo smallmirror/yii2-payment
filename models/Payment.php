@@ -94,6 +94,8 @@ class Payment extends ActiveRecord
     {
         return [
             'money' => Yii::t('payment', 'Money'),
+            'currency' => Yii::t('payment', 'Currency'),
+            'pay_type' => Yii::t('payment', 'Pay Type'),
             'gateway' => Yii::t('payment', 'Payment Gateway'),
         ];
     }
