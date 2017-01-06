@@ -36,6 +36,7 @@ use yii\base\InvalidParamException;
  */
 class Module extends \yii\base\Module
 {
+
     /**
      * Internal storage for all available gateways
      *

@@ -33,7 +33,7 @@ class DefaultController extends Controller
                     //已认证用户
                     [
                         'allow' => true,
-                        'actions' => ['index', 'pay', 'query', 'return', 'query'],
+                        'actions' => ['index', 'pay', 'query', 'return'],
                         'roles' => ['@']
                     ],
                 ]
