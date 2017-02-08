@@ -10,7 +10,7 @@
   "license": "MIT",
   "require": {
     "yiisoft/yii2": "~2.0.0",
-    "yuncms/yii2-user": "*",
+    "yuncms/yii2-user": "~1.0",
     "endroid/qrcode":"~1.0"
   },
   "autoload": {
