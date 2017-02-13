@@ -81,7 +81,7 @@ class Payment extends ActiveRecord
     {
         return [
             [['gateway', 'currency', 'pay_type', 'money'], 'required'],
-            ['id', 'unique', 'message' => Yii::t('app', 'This id has already been taken')],
+            ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
             ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
             ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE, static::TYPE_COIN]],
             ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
@@ -93,10 +93,20 @@ class Payment extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'money' => Yii::t('payment', 'Money'),
-            'currency' => Yii::t('payment', 'Currency'),
-            'pay_type' => Yii::t('payment', 'Pay Type'),
+            'id' => Yii::t('payment', 'ID'),
+            'order_id' => Yii::t('payment', 'Order ID'),
+            'pay_id' => Yii::t('payment', 'Pay ID'),
+            'user_id' => Yii::t('payment', 'User ID'),
+            'name' => Yii::t('payment', 'Payment Name'),
             'gateway' => Yii::t('payment', 'Payment Gateway'),
+            'currency' => Yii::t('payment', 'Currency'),
+            'money' => Yii::t('payment', 'Money'),
+            'pay_type' => Yii::t('payment', 'Pay Type'),
+            'pay_state' => Yii::t('payment', 'Pay State'),
+            'ip' => Yii::t('payment', 'Pay IP'),
+            'note' => Yii::t('payment', 'Pay Note'),
+            'created_at' => Yii::t('payment', 'Created At'),
+            'updated_at' => Yii::t('payment', 'Updated At'),
         ];
     }
 

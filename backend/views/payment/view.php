@@ -57,8 +57,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     'pay_state',
                     'ip',
                     'note:ntext',
-                    'created_at',
-                    'updated_at',
+                    'created_at:datetime',
+                    'updated_at:datetime',
                 ],
             ]) ?>
             <?php Jarvis::end(); ?>
