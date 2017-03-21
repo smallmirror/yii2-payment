@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yuncms\admin\widgets\Jarvis;
+use yuncms\payment\models\Payment;
 
 /* @var $this yii\web\View */
 /* @var $model yuncms\payment\models\Payment */
@@ -53,8 +54,42 @@ $this->params['breadcrumbs'][] = $this->title;
                     'gateway',
                     'currency',
                     'money',
-                    'pay_type',
-                    'pay_state',
+                    [
+                        'label' => Yii::t('payment', 'Pay Type'),
+                        'value' => function ($model) {
+                            if ($model->pay_type == Payment::TYPE_ONLINE) {
+                                return Yii::t('payment', 'Online Payment');
+                            } else if ($model->pay_type == Payment::TYPE_OFFLINE) {
+                                return Yii::t('payment', 'Office Payment');
+                            } else if ($model->pay_type == Payment::TYPE_RECHARGE) {
+                                return Yii::t('payment', 'Recharge Payment');
+                            } else if ($model->pay_type == Payment::TYPE_COIN) {
+                                return Yii::t('payment', 'Coin Payment');
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'label' => Yii::t('payment', 'Pay State'),
+                        'value' => function ($model) {
+                            if ($model->pay_state == Payment::STATUS_NOT_PAY) {
+                                return Yii::t('payment', 'State Not Pay');
+                            } else if ($model->pay_state == Payment::STATUS_SUCCESS) {
+                                return Yii::t('payment', 'State Success');
+                            } else if ($model->pay_state == Payment::STATUS_FAILED) {
+                                return Yii::t('payment', 'State Failed');
+                            } else if ($model->pay_state == Payment::STATUS_REFUND) {
+                                return Yii::t('payment', 'State Refund');
+                            } else if ($model->pay_state == Payment::STATUS_CLOSED) {
+                                return Yii::t('payment', 'State Close');
+                            } else if ($model->pay_state == Payment::STATUS_REVOKED) {
+                                return Yii::t('payment', 'State Revoked');
+                            } else if ($model->pay_state == Payment::STATUS_ERROR) {
+                                return Yii::t('payment', 'State Error');
+                            }
+                        },
+                       'format' => 'raw'
+                    ],
                     'ip',
                     'note:ntext',
                     'created_at:datetime',
