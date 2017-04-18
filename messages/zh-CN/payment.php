@@ -52,4 +52,5 @@ return [
     'Update Payment' => '更新支付',
     'Updated At' => '更新时间',
     'User ID' => '用户ID',
+    'Sweep two-dimensional code, pay immediately'=>'扫描二维码，立即支付'
 ];
