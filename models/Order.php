@@ -24,6 +24,7 @@ use yii\db\ActiveRecord;
  * Defined relations:
  * @property User $user
  * @property Payment $payment
+ * @property OrderItem[] $items
  *
  * Dependencies:
  * @property-read Module $module
@@ -50,6 +51,24 @@ class Order extends ActiveRecord
     public static function tableName()
     {
         return '{{%order}}';
+    }
+
+    /**
+     * User Relation
+     * @return \yii\db\ActiveQueryInterface
+     */
+    public function getUser()
+    {
+        return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
+    }
+
+    /**
+     * Order Item Relation
+     * @return \yii\db\ActiveQueryInterface
+     */
+    public function getItem()
+    {
+        return $this->hasMany(OrderItem::className(), ['order_id' => 'id']);
     }
 
     /**
