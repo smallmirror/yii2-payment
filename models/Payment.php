@@ -171,6 +171,39 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * 计算用户获得的积分数量
+     * @param integer $money 钱数
+     * @param string $currency 币种
+     * @return float
+     */
+    private static function getCoin($money, $currency = 'CNY')
+    {
+        $coin = 0;
+        if ($currency == 'CNY') {//10比1
+            $coin = $money / 10;
+            if ($money >= 200 && $money < 500) {
+                $coin += $coin * 0.5;
+            } else if ($money >= 500) {//冲多少送多少
+                $coin += $coin;
+            }
+        } else if ($currency == 'USD') {//2比1
+            $coin = $money / 2;
+            if ($money >= 20) {
+                $coin += $coin * 0.1;
+            } else if ($money >= 50 && $money < 100) {
+                $coin += $coin * 0.2;
+            } else if ($money >= 100) {//冲多少送多少
+                $coin += $coin;
+            }
+        }
+        //test
+        if ($money == 0.01) {
+            $coin = 0.01;
+        }
+        return $coin;
+    }
+
+    /**
      * 设置支付状态
      * @param string $paymentId
      * @param int $status
@@ -199,11 +232,12 @@ class Payment extends ActiveRecord
                 /** @var \yuncms\wallet\Module $wallet */
                 $wallet = Yii::$app->getModule('wallet');
                 $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
-                $wallet->wallet($payment->user_id, $payment->currency, -$payment->money, 'recharge', 'Buy Coin');
+                $wallet->wallet($payment->user_id, $payment->currency, -$payment->money, 'purchase', 'Buy Coin');
 
+                $coin = static::getCoin($payment->money, $payment->currency);
                 /** @var \yuncms\user\Module $user */
                 $user = Yii::$app->getModule('user');
-                $user->coin($payment->user_id,'Buy',$payment->money);
+                $user->coin($payment->user_id, 'purchase', $coin);
             }
             return true;
         }
