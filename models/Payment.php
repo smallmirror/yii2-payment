@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\models;
 
 use Yii;
@@ -186,13 +187,23 @@ class Payment extends ActiveRecord
         }
         if ($status == true) {
             $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'memo' => $params['message']]);
-            $payment->save();
-            if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
-                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
-            } else if ($payment->pay_type == static::TYPE_COIN) {//购买金币
-                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+            if ($payment->pay_type == static::TYPE_ONLINE) {//在线支付订单
 
-                Yii::$app->getModule('user')->purse($payment->user_id, $payment->currency, $payment->money, 'recharge', 'Buy Coin');
+            } else if ($payment->pay_type == static::TYPE_OFFLINE) {//离线支付
+
+            } else if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
+                /** @var \yuncms\wallet\Module $wallet */
+                $wallet = Yii::$app->getModule('wallet');
+                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+            } else if ($payment->pay_type == static::TYPE_COIN) {//购买金币
+                /** @var \yuncms\wallet\Module $wallet */
+                $wallet = Yii::$app->getModule('wallet');
+                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+                $wallet->wallet($payment->user_id, $payment->currency, -$payment->money, 'recharge', 'Buy Coin');
+
+                /** @var \yuncms\user\Module $user */
+                $user = Yii::$app->getModule('user');
+                $user->coin($payment->user_id,'Buy',$payment->money);
             }
             return true;
         }
