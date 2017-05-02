@@ -16,9 +16,10 @@ class M161230094930Create_payment_table extends Migration
 
         $this->createTable('{{%payment}}', [
             'id' => $this->string()->notNull(),
-            'order_id' => $this->string(),
-            'pay_id' => $this->string(),
-            'user_id' => $this->integer(),
+            'order_id' => $this->string()->comment('订单ID'),
+            'order_model' => $this->string()->comment('订单模型'),
+            'pay_id' => $this->string()->comment('支付号'),
+            'user_id' => $this->integer()->comment('用户ID'),
             'name' => $this->integer(),
             'gateway' => $this->string(50)->notNull()->comment('支付网关'),
             'currency' => $this->string(20)->notNull()->comment('支付币种'),
@@ -26,9 +27,9 @@ class M161230094930Create_payment_table extends Migration
             'pay_type' => $this->smallInteger()->notNull()->comment('付款类型'),
             'pay_state' => $this->smallInteger()->notNull(),
             'ip' => $this->string()->notNull()->comment('付款IP'),
-            'note' => $this->text(),
-            'created_at' => $this->integer()->notNull(),
-            'updated_at' => $this->integer()->notNull()
+            'note' => $this->text()->comment('注释'),
+            'created_at' => $this->integer()->notNull()->comment('创建时间'),
+            'updated_at' => $this->integer()->notNull()->comment('更新时间'),
         ], $tableOptions);
 
         $this->addPrimaryKey('PK', '{{%payment}}', 'id');
