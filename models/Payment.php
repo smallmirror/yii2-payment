@@ -28,7 +28,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $money
  * @property integer $created_at
  * @property integer $updated_at
- * @property integer $memo
+ * @property string $note 备注
  * @property string $ip
  * @package yuncms\payment
  */

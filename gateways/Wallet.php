@@ -25,6 +25,11 @@ class Wallet extends BaseGateway
     public $md5Key;
 
     /**
+     * @var string 跳转方法
+     */
+    public $redirectMethod = 'GET';
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -53,7 +58,6 @@ class Wallet extends BaseGateway
         ];
 
         if ($payment->money < 0 || $value < 0) {
-            Yii::$app->session->setFlash(Yii::t('payment', 'The server is busy, please try again later!'));
             $params['payId'] = '0';
             $params['status'] = 'failure';
             $params['message'] = 'Insufficient balance.';
@@ -69,7 +73,7 @@ class Wallet extends BaseGateway
                     'money' => $payment->money,
                     'action' => 'Purchase',
                     'msg' => '',
-                    'type' => $payment->money > 0 ? WalletLog::TYPE_INC : WalletLog::TYPE_DEC
+                    'type' => WalletLog::TYPE_DEC
                 ]);
                 $log->link('wallet', $wallet);
                 $transaction->commit();
@@ -83,10 +87,8 @@ class Wallet extends BaseGateway
                 $params['message'] = 'Insufficient balance.';
             }
         }
-        $md5src = $params['paymentId'] . '&' . $params['money'] . '&' . $this->md5Key;        //校验源字符串
-        $params['sign'] = strtoupper(md5($md5src));//MD5检验结果
+        $params['sign'] = strtoupper(md5("{$params['paymentId']}&{$params['money']}&$this->md5Key"));
         $this->getRedirectResponse($params);
-
     }
 
     /**
@@ -100,14 +102,18 @@ class Wallet extends BaseGateway
      */
     public function callback(Request $request, &$paymentId, &$money, &$message, &$payId)
     {
-        $return = $request->post();
+        $return = $request->get();
         // 订单号
         $payId = trim($return ['payId']);
+        //支付号
         $paymentId = trim($return ['paymentId']);
+        //钱数
         $money = trim($return ['money']);
+        //状态
         $status = trim($return ['status']);
         // 备注
         $message = trim($return ['message']);
+        //签名
         $SignMD5info = trim($return ['sign']);
         $sign = strtoupper(md5("{$paymentId}&{$money}&{$this->md5Key}"));
         if ($sign == $SignMD5info) {

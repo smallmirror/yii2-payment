@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\controllers;
 
 use Yii;
@@ -54,6 +55,7 @@ class ResponseController extends Controller
     /**
      * 支付后跳转
      * @param string $gateway
+     * @return \yii\web\Response
      * @throws NotFoundHttpException
      */
     public function actionReturn($gateway)
@@ -64,7 +66,7 @@ class ResponseController extends Controller
         $gateway = $this->module->getGateway($gateway);
         $status = $gateway->callback(Yii::$app->request, $this->paymentId, $this->money, $this->message, $this->payId);
         Payment::setPayStatus($this->paymentId, $status, ['money' => $this->money, 'message' => $this->message, 'pay_id' => $this->payId]);
-        $this->redirect(['/payment/default/return', 'id' => $this->paymentId]);
+        return $this->redirect(['/payment/default/return', 'id' => $this->paymentId]);
     }
 
     /**
@@ -80,6 +82,6 @@ class ResponseController extends Controller
         $gateway = $this->module->getGateway($gateway);
         $status = $gateway->notice(Yii::$app->request, $this->paymentId, $this->money, $this->message, $this->payId);
         Payment::setPayStatus($this->paymentId, $status, ['money' => $this->money, 'memo' => $this->message, 'pay_id' => $this->payId]);
-        exit;
+        Yii::$app->end();
     }
 }

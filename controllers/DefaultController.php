@@ -34,8 +34,13 @@ class DefaultController extends Controller
                     //已认证用户
                     [
                         'allow' => true,
-                        'actions' => ['index', 'pay', 'query', 'return'],
+                        'actions' => ['index', 'pay', 'query'],
                         'roles' => ['@']
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['return'],
+                        'roles' => ['@', '?']
                     ],
                 ]
             ],
@@ -86,17 +91,7 @@ class DefaultController extends Controller
     public function actionReturn($id)
     {
         $payment = $this->findModel($id);
-        if ($payment->pay_state == Payment::STATUS_SUCCESS) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
-        }
-        if ($payment->pay_type == Payment::TYPE_COIN) {
-            return $this->redirect(['/user/coin/index']);
-        } else if ($payment->pay_type == Payment::TYPE_OFFLINE) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Please wait for administrator to confirm.'));
-        } else if ($payment->pay_type == Payment::TYPE_ONLINE) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
-        }
-        return $this->redirect(['/wallet/wallet/index']);
+        return $this->render('return', ['payment' => $payment]);
     }
 
     /**
