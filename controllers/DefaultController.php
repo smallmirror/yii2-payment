@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\controllers;
 
 
@@ -90,13 +91,13 @@ class DefaultController extends Controller
         }
 
         if ($payment->pay_type == Payment::TYPE_COIN) {
-            return $this->redirect('/user/coin/index');
+            return $this->redirect(['/user/coin/index']);
         } else if ($payment->pay_type == Payment::TYPE_OFFLINE) {
             Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Please wait for administrator to confirm.'));
         } else if ($payment->pay_type == Payment::TYPE_ONLINE) {
             Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
         }
-        return $this->redirect('/user/purse/index');
+        return $this->redirect('/wallet/wallet/index');
     }
 
     /**

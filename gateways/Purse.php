@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\gateways;
 
 use Yii;
@@ -11,6 +12,10 @@ use yii\web\Request;
 use yuncms\payment\BaseGateway;
 use yuncms\payment\models\Payment;
 
+/**
+ * Class Purse
+ * @package yuncms\payment\gateways
+ */
 class Purse extends BaseGateway
 {
     /**
@@ -48,6 +53,16 @@ class Purse extends BaseGateway
      * @return mixed
      */
     public function notice(Request $request, &$paymentId, &$money, &$message, &$payId)
+    {
+
+    }
+
+    /**
+     * 查询支付是否成功，对账作用
+     * @param string $paymentId
+     * @return mixed
+     */
+    public function queryOrder($paymentId)
     {
 
     }
