@@ -28,6 +28,7 @@ class M161230094930Create_payment_table extends Migration
             'pay_state' => $this->smallInteger()->notNull(),
             'ip' => $this->string()->notNull()->comment('付款IP'),
             'note' => $this->text()->comment('注释'),
+            'return_url' => $this->text()->comment('回调URL'),
             'created_at' => $this->integer()->notNull()->comment('创建时间'),
             'updated_at' => $this->integer()->notNull()->comment('更新时间'),
         ], $tableOptions);
