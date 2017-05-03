@@ -23,6 +23,7 @@ if (isset($paymentParams['data'])) {
         <img style="margin:5rem 0 0" src="<?= $paymentParams['data'] ?>">
         <p style="margin-top:10px"><?= Yii::t('payment', 'Sweep two-dimensional code, pay immediately') ?></p>
     </div>
+
     <?php
 } else {
     Yii::$app->request->enableCsrfValidation = false;

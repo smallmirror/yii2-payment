@@ -219,7 +219,7 @@ class Payment extends ActiveRecord
             return true;
         }
         if ($status == true) {
-            $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'memo' => $params['message']]);
+            $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'note' => $params['message']]);
             if ($payment->pay_type == static::TYPE_ONLINE) {//在线支付订单
 
             } else if ($payment->pay_type == static::TYPE_OFFLINE) {//离线支付
@@ -227,11 +227,11 @@ class Payment extends ActiveRecord
             } else if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
                 /** @var \yuncms\wallet\Module $wallet */
                 $wallet = Yii::$app->getModule('wallet');
-                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->gateway . ' Recharge');
             } else if ($payment->pay_type == static::TYPE_COIN) {//购买金币
                 /** @var \yuncms\wallet\Module $wallet */
                 $wallet = Yii::$app->getModule('wallet');
-                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->payment . 'Recharge');
+                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->gateway . ' Recharge');
                 $wallet->wallet($payment->user_id, $payment->currency, -$payment->money, 'purchase', 'Buy Coin');
 
                 $coin = static::getCoin($payment->money, $payment->currency);

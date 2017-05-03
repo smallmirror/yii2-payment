@@ -89,7 +89,6 @@ class DefaultController extends Controller
         if ($payment->pay_state == Payment::STATUS_SUCCESS) {
             Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
         }
-
         if ($payment->pay_type == Payment::TYPE_COIN) {
             return $this->redirect(['/user/coin/index']);
         } else if ($payment->pay_type == Payment::TYPE_OFFLINE) {
@@ -97,7 +96,7 @@ class DefaultController extends Controller
         } else if ($payment->pay_type == Payment::TYPE_ONLINE) {
             Yii::$app->getSession()->setFlash('success', Yii::t('payment', 'Completion of payment.'));
         }
-        return $this->redirect('/wallet/wallet/index');
+        return $this->redirect(['/wallet/wallet/index']);
     }
 
     /**
