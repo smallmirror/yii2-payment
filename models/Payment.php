@@ -178,16 +178,14 @@ class Payment extends ActiveRecord
      */
     private static function getCoin($money, $currency = 'CNY')
     {
-        $coin = 0;
+        $coin = $money;
         if ($currency == 'CNY') {//10比1
-            $coin = $money / 10;
             if ($money >= 200 && $money < 500) {
                 $coin += $coin * 0.5;
             } else if ($money >= 500) {//冲多少送多少
                 $coin += $coin;
             }
         } else if ($currency == 'USD') {//2比1
-            $coin = $money / 2;
             if ($money >= 20) {
                 $coin += $coin * 0.1;
             } else if ($money >= 50 && $money < 100) {
