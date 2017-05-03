@@ -17,11 +17,11 @@ use yii\behaviors\TimestampBehavior;
  *
  * Database fields:
  * @property integer $id 付款ID
- * @property integer $order_id 订单ID
+ * @property integer $model_id 订单ID
+ * @property string $model 订单模型
  * @property integer $user_id 用户ID
  * @property string $pay_type
  * @property string $gateway 支付网关
- * @property string $password_hash
  * @property string $pay_id
  * @property integer $pay_state
  * @property integer $currency
@@ -95,7 +95,8 @@ class Payment extends ActiveRecord
     {
         return [
             'id' => Yii::t('payment', 'ID'),
-            'order_id' => Yii::t('payment', 'Order ID'),
+            'model_id' => Yii::t('payment', 'Model ID'),
+            'model' => Yii::t('payment', 'Model'),
             'pay_id' => Yii::t('payment', 'Pay ID'),
             'user_id' => Yii::t('payment', 'User ID'),
             'name' => Yii::t('payment', 'Payment Name'),

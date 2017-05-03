@@ -16,8 +16,8 @@ class M161230094930Create_payment_table extends Migration
 
         $this->createTable('{{%payment}}', [
             'id' => $this->string()->notNull(),
-            'order_id' => $this->string()->comment('订单ID'),
-            'order_model' => $this->string()->comment('订单模型'),
+            'model_id' => $this->integer()->comment('订单ID'),
+            'model' => $this->string()->comment('订单模型'),
             'pay_id' => $this->string()->comment('支付号'),
             'user_id' => $this->integer()->comment('用户ID'),
             'name' => $this->integer(),
