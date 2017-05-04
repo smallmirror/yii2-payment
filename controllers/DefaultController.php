@@ -91,6 +91,10 @@ class DefaultController extends Controller
     public function actionReturn($id)
     {
         $payment = $this->findModel($id);
+        if (!empty($payment->return_url)) {
+            Yii::$app->session->setFlash('success', Yii::t('payment', 'Completion of payment.'));
+            return $this->redirect($payment->return_url);
+        }
         return $this->render('return', ['payment' => $payment]);
     }
 
