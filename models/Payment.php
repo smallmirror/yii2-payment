@@ -83,6 +83,8 @@ class Payment extends ActiveRecord
         return [
             [['gateway', 'currency', 'pay_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
+            ['order_id', 'integer'],
+            ['order_model', 'string', 'max' => 255],
             ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
             ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE, static::TYPE_COIN]],
             ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
