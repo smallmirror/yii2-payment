@@ -220,12 +220,13 @@ class Payment extends ActiveRecord
         if (static::STATUS_SUCCESS == $payment->pay_state) {
             return true;
         }
+
         if ($status == true) {
             $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'note' => $params['message']]);
             if ($payment->pay_type == static::TYPE_ONLINE) {//在线支付订单
-                if (!empty($payment->order_id) && !empty($payment->order_model)) {
-                    /** @var \yuncms\payment\OrderInterface $orderModel */
-                    $orderModel = $payment->order_model;
+                /** @var \yuncms\payment\OrderInterface $orderModel */
+                $orderModel = $payment->order_model;
+                if (!empty($payment->order_id) && !empty($orderModel)) {
                     $orderModel::setPayStatus($payment->order_id, $paymentId, $status, $params);
                 }
             } else if ($payment->pay_type == static::TYPE_OFFLINE) {//离线支付

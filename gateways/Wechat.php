@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\gateways;
 
 use Yii;
@@ -15,7 +16,7 @@ use yuncms\payment\BaseGateway;
 use yuncms\payment\models\Payment;
 use Endroid\QrCode\QrCode;
 
-class WeChat extends BaseGateway
+class Wechat extends BaseGateway
 {
 
     /**
@@ -43,7 +44,7 @@ class WeChat extends BaseGateway
      */
     public $sslKey;
 
-    public $currencies = ['CNY','USD'];
+    public $currencies = ['CNY', 'USD'];
 
     /**
      * @inheritdoc
@@ -105,9 +106,9 @@ class WeChat extends BaseGateway
      * @param array $paymentParams 支付参数
      * @return void
      */
-    public function payment(Payment $payment,&$paymentParams)
+    public function payment(Payment $payment, &$paymentParams)
     {
-        if(!$this->checkCurrency($payment->currency)){
+        if (!$this->checkCurrency($payment->currency)) {
             Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
         } else {
             $params = $this->buildPaymentParameter([
@@ -197,6 +198,7 @@ class WeChat extends BaseGateway
         $params['sign'] = $this->createSign($params);
         $response = $this->api('https://api.mch.weixin.qq.com/pay/orderquery', 'POST', $params);
         if ($response->data['trade_state'] == 'SUCCESS') {
+            Payment::setPayStatus($paymentId, true, ['pay_id' => $response->data['transaction_id'], 'message' => $response->data['return_msg']]);
             return true;
         }
         return false;
