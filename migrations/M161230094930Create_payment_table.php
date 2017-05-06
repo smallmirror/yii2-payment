@@ -34,6 +34,8 @@ class M161230094930Create_payment_table extends Migration
         ], $tableOptions);
 
         $this->addPrimaryKey('PK', '{{%payment}}', 'id');
+
+        $this->createIndex('model_id_model', '{{%payment}}', ['model_id', 'model']);
     }
 
     public function down()

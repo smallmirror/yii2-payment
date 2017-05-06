@@ -17,8 +17,8 @@ use yii\behaviors\TimestampBehavior;
  *
  * Database fields:
  * @property integer $id 付款ID
- * @property integer $order_id 订单ID
- * @property string $order_model 订单模型
+ * @property integer $model_id 订单ID
+ * @property string $model 订单模型
  * @property integer $user_id 用户ID
  * @property string $pay_type
  * @property string $gateway 支付网关
@@ -225,9 +225,9 @@ class Payment extends ActiveRecord
             $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'note' => $params['message']]);
             if ($payment->pay_type == static::TYPE_ONLINE) {//在线支付订单
                 /** @var \yuncms\payment\OrderInterface $orderModel */
-                $orderModel = $payment->order_model;
-                if (!empty($payment->order_id) && !empty($orderModel)) {
-                    $orderModel::setPayStatus($payment->order_id, $paymentId, $status, $params);
+                $orderModel = $payment->model;
+                if (!empty($payment->model_id) && !empty($orderModel)) {
+                    $orderModel::setPayStatus($payment->model_id, $paymentId, $status, $params);
                 }
             } else if ($payment->pay_type == static::TYPE_OFFLINE) {//离线支付
 
