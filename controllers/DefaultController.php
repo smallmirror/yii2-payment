@@ -77,7 +77,11 @@ class DefaultController extends Controller
         $paymentParams = [];
         $gateway->payment($payment, $paymentParams);
         if ($paymentParams) {
-            return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
+            if (Yii::$app->request->isAjax) {
+                return $this->renderPartial('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
+            } else {
+                return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
+            }
         }
         return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
     }
