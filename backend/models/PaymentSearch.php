@@ -18,7 +18,7 @@ class PaymentSearch extends Payment
     public function rules()
     {
         return [
-            [['id', 'order_id', 'pay_id', 'gateway', 'currency', 'ip', 'note'], 'safe'],
+            [['id', 'model_id', 'pay_id', 'gateway', 'currency', 'ip', 'note'], 'safe'],
             [['user_id', 'name', 'pay_type', 'pay_state', 'created_at', 'updated_at'], 'integer'],
             [['money'], 'number'],
         ];
@@ -70,7 +70,7 @@ class PaymentSearch extends Payment
         ]);
 
         $query->andFilterWhere(['like', 'id', $this->id])
-            ->andFilterWhere(['like', 'order_id', $this->order_id])
+            ->andFilterWhere(['like', 'model_id', $this->order_id])
             ->andFilterWhere(['like', 'pay_id', $this->pay_id])
             ->andFilterWhere(['like', 'gateway', $this->gateway])
             ->andFilterWhere(['like', 'currency', $this->currency])

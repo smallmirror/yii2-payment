@@ -22,9 +22,9 @@ use xutl\inspinia\ActiveForm;
         ],
     ]) ?>
 
-    <?= $form->field($model, 'order_id', [
+    <?= $form->field($model, 'model_id', [
         'inputOptions' => [
-            'placeholder' => $model->getAttributeLabel('order_id'),
+            'placeholder' => $model->getAttributeLabel('model_id'),
         ],
     ]) ?>
 
