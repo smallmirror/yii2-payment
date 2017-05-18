@@ -81,7 +81,7 @@ class ResponseController extends Controller
         }
         $gateway = $this->module->getGateway($gateway);
         $status = $gateway->notice(Yii::$app->request, $this->paymentId, $this->money, $this->message, $this->payId);
-        Payment::setPayStatus($this->paymentId, $status, ['money' => $this->money, 'memo' => $this->message, 'pay_id' => $this->payId]);
+        Payment::setPayStatus($this->paymentId, $status, ['money' => $this->money, 'message' => $this->message, 'pay_id' => $this->payId]);
         Yii::$app->end();
     }
 }
