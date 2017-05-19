@@ -65,17 +65,14 @@ class PaymentSearch extends Payment
             'money' => $this->money,
             'pay_type' => $this->pay_type,
             'pay_state' => $this->pay_state,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ]);
 
         $query->andFilterWhere(['like', 'id', $this->id])
-            ->andFilterWhere(['like', 'model_id', $this->order_id])
+            ->andFilterWhere(['like', 'model_id', $this->model_id])
             ->andFilterWhere(['like', 'pay_id', $this->pay_id])
             ->andFilterWhere(['like', 'gateway', $this->gateway])
             ->andFilterWhere(['like', 'currency', $this->currency])
-            ->andFilterWhere(['like', 'ip', $this->ip])
-            ->andFilterWhere(['like', 'note', $this->note]);
+            ->andFilterWhere(['like', 'ip', $this->ip]);
 
         return $dataProvider;
     }
