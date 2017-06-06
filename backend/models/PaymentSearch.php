@@ -19,7 +19,7 @@ class PaymentSearch extends Payment
     {
         return [
             [['id', 'model_id', 'pay_id', 'gateway', 'currency', 'ip', 'note'], 'safe'],
-            [['user_id', 'name', 'pay_type', 'pay_state', 'created_at', 'updated_at'], 'integer'],
+            [['user_id', 'name', 'pay_type', 'pay_state'], 'integer'],
             [['money'], 'number'],
         ];
     }
@@ -44,7 +44,7 @@ class PaymentSearch extends Payment
     {
         $query = Payment::find();
 
-        // add conditions that should always apply here
+        $query->orderBy(['id' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
