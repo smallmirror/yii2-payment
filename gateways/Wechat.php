@@ -122,6 +122,7 @@ class Wechat extends BaseGateway
             $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
             if (isset($response->data['prepay_id']) && isset($response->data['code_url'])) {
                 $payment->updateAttributes(['pay_id' => $response->data['prepay_id']]);
+                $paymentParams['url'] = $response->data['code_url'];
                 $paymentParams['data'] = (new QrCode())->setText($response->data['code_url'])->setSize(240)->setPadding(10)->getDataUri();
             } else {
                 Yii::$app->session->setFlash(Yii::t('payment', 'The server is busy. Please try again!'));
