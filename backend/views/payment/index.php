@@ -69,9 +69,9 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                     'currency',
                     'money',
                     [
-                        'header' => Yii::t('payment', 'Pay Type'),
+                        'header' => Yii::t('payment', 'Trade Type'),
                         'value' => function ($model) {
-                            if ($model->pay_type == Payment::TYPE_ONLINE) {
+                            if ($model->trade_type == Payment::TEADE_F) {
                                 return Yii::t('payment', 'Online Payment');
                             } else if ($model->pay_type == Payment::TYPE_OFFLINE) {
                                 return Yii::t('payment', 'Office Payment');
@@ -84,21 +84,21 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                         'format' => 'raw'
                     ],
                     [
-                        'header' => Yii::t('payment', 'Pay State'),
+                        'header' => Yii::t('payment', 'Trade State'),
                         'value' => function ($model) {
-                            if ($model->pay_state == Payment::STATUS_NOT_PAY) {
+                            if ($model->ptrade_state == Payment::TRADE_NOT_PAY) {
                                 return Yii::t('payment', 'State Not Pay');
-                            } else if ($model->pay_state == Payment::STATUS_SUCCESS) {
+                            } else if ($model->trade_state == Payment::TRADE_SUCCESS) {
                                 return Yii::t('payment', 'State Success');
-                            } else if ($model->pay_state == Payment::STATUS_FAILED) {
+                            } else if ($model->trade_state == Payment::TRADE_FAILED) {
                                 return Yii::t('payment', 'State Failed');
-                            } else if ($model->pay_state == Payment::STATUS_REFUND) {
+                            } else if ($model->trade_state == Payment::TRADE_REFUND) {
                                 return Yii::t('payment', 'State Refund');
-                            } else if ($model->pay_state == Payment::STATUS_CLOSED) {
+                            } else if ($model->trade_state == Payment::TRADE_CLOSED) {
                                 return Yii::t('payment', 'State Close');
-                            } else if ($model->pay_state == Payment::STATUS_REVOKED) {
+                            } else if ($model->trade_state == Payment::TRADE_REVOKED) {
                                 return Yii::t('payment', 'State Revoked');
-                            } else if ($model->pay_state == Payment::STATUS_ERROR) {
+                            } else if ($model->trade_state == Payment::TRADE_ERROR) {
                                 return Yii::t('payment', 'State Error');
                             }
                         },

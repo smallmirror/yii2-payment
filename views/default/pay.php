@@ -7,7 +7,13 @@ use yii\web\View;
 use yii\helpers\Url;
 use yii\helpers\Html;
 
-$js = 'function getPaymentStatus() {jQuery.get("' . Url::to(['/payment/default/query', 'id' => $payment->id]) . '", function (result) {if (result.status == \'success\') {window.location.href = "' . Url::to(['/payment/default/return', 'id' => $payment->id]) . '";}});}';
+$js = 'function getPaymentStatus() {
+jQuery.get("' . Url::to(['/payment/default/query', 'id' => $payment->id]) . '", function (result) {
+if (result.status == \'success\') {
+window.location.href = "' . Url::to(['/payment/default/return', 'id' => $payment->id]) . '";
+}
+});
+}';
 $js .= 'setInterval("getPaymentStatus()", 3000);';
 if (!Yii::$app->request->isAjax && isset($paymentParams['data'])) {
     $this->registerJs($js, View::POS_BEGIN);

@@ -4,10 +4,14 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment;
 
 use Yii;
+use yii\di\Instance;
 use yii\base\InvalidParamException;
+use yii\base\InvalidConfigException;
+use xutl\mq\ClientInterface;
 
 /**
  * Class Module

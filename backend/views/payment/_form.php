@@ -21,9 +21,9 @@ use xutl\inspinia\ActiveForm;
 <div class="hr-line-dashed"></div>
 <?= $form->field($model, 'money')->textInput(['maxlength' => true]) ?>
 <div class="hr-line-dashed"></div>
-<?= $form->field($model, 'pay_type')->textInput() ?>
+<?= $form->field($model, 'trade_type')->textInput() ?>
 <div class="hr-line-dashed"></div>
-<?= $form->field($model, 'pay_state')->textInput() ?>
+<?= $form->field($model, 'trade_state')->textInput() ?>
 <div class="hr-line-dashed"></div>
 
 <div class="form-group">

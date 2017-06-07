@@ -19,16 +19,34 @@ use yuncms\payment\models\Payment;
  */
 class Ecpss extends BaseGateway
 {
+    /**
+     * @var string 商户号
+     */
     public $merNo;
+
+    /**
+     * @var string 机密密钥
+     */
     public $md5Key;
 
     /**
      * @var string 默认走银联
      */
     public $defaultBankNumber = 'UNIONPAY';
+
+    /**
+     * @var array 支持的币种
+     */
     public $currencies = ['CNY'];
 
+    /**
+     * @var string 网关跳转方式
+     */
     public $redirectMethod = 'POST';
+
+    /**
+     * @var string 网关地址
+     */
     public $redirectUrl = 'https://pay.ecpss.com/sslpayment';
 
     /**
@@ -73,7 +91,7 @@ class Ecpss extends BaseGateway
                 'Amount' => round($payment->money, 2),
                 'ReturnURL' => $this->getReturnUrl(),
                 'AdviceURL' => $this->getNoticeUrl(),
-                'products' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'products' => !empty($payment->model_id) ? $payment->model_id : '充值',
                 'Remark' => 'Remark',
                 'defaultBankNumber' => $this->defaultBankNumber,
                 'orderTime' => date('YmdHis')

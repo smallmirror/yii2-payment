@@ -52,9 +52,9 @@ use xutl\inspinia\ActiveForm;
 
     <?php // echo $form->field($model, 'money') ?>
 
-    <?php // echo $form->field($model, 'pay_type') ?>
+    <?php // echo $form->field($model, 'trade_type') ?>
 
-    <?php // echo $form->field($model, 'pay_state') ?>
+    <?php // echo $form->field($model, 'trade_state') ?>
 
     <?php // echo $form->field($model, 'ip') ?>
 

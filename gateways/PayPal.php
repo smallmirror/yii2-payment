@@ -39,7 +39,7 @@ class PayPal extends BaseGateway
                 'no_shipping' => 1,
                 'business' => $this->business,
                 'currency_code' => $payment->currency,
-                'item_name' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'item_name' => !empty($payment->model_id) ? $payment->model_id : '充值',
                 'item_number' => $payment->id,
                 'amount' => round($payment->money, 2),
                 'charset' => $this->charset,

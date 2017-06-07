@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\payment\gateways;
 
 use Yii;
@@ -19,16 +20,39 @@ use yuncms\payment\models\Payment;
  */
 class AliPay extends BaseGateway
 {
+    /**
+     * @var string 商户号
+     */
     public $partner;
+
+    /**
+     * @var string 商户Email
+     */
     public $seller_email;
+
+    /**
+     * @var string 接口密钥
+     */
     public $key;
 
+    /**
+     * @var array 支持的币种
+     */
     public $currencies = ['CNY'];
 
+    /**
+     * @var string 签名方法
+     */
     public $signType = 'MD5';
 
+    /**
+     * @var string 网关提交方法
+     */
     public $redirectMethod = 'POST';
 
+    /**
+     * @var string 网关地址
+     */
     public $redirectUrl = 'https://mapi.alipay.com/gateway.do';
 
     /**
@@ -50,6 +74,11 @@ class AliPay extends BaseGateway
         $this->redirectUrl = $this->composeUrl($this->redirectUrl, ['_input_charset' => $this->charset]);
     }
 
+    /**
+     * 包装付款参数
+     * @param array $params
+     * @return array
+     */
     public function buildPaymentParameter($params = [])
     {
         $defaultParams = [
@@ -71,24 +100,25 @@ class AliPay extends BaseGateway
      * @param string $paymentId
      * @return mixed
      */
-    public function queryOrder($paymentId){
+    public function queryOrder($paymentId)
+    {
         return false;
     }
 
     /**
-     * 支付
+     * 去支付
      * @param Payment $payment
      * @param array $paymentParams 支付参数
      * @return void
      */
-    public function payment(Payment $payment,&$paymentParams)
+    public function payment(Payment $payment, &$paymentParams)
     {
-        if(!$this->checkCurrency($payment->currency)){
+        if (!$this->checkCurrency($payment->currency)) {
             Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
         } else {
             $params = $this->buildPaymentParameter([
                 'out_trade_no' => $payment->id,
-                'subject' => !empty($payment->order_id) ? $payment->order_id . '付款' : '账号充值',
+                'subject' => !empty($payment->model_id) ? $payment->model_id . '付款' : '账号充值',
                 'total_fee' => round($payment->money, 2),
             ]);
             //签名结果与签名方式加入请求提交参数组中
@@ -158,7 +188,11 @@ class AliPay extends BaseGateway
 
         $responseTxt = 'true';
         if (!empty($return["notify_id"])) {
-            $responseTxt = $this->api('https://mapi.alipay.com/gateway.do', 'GET', ['service' => 'notify_verify', 'notify_id' => trim($return["notify_id"]), 'partner' => $this->partner]);
+            $responseTxt = $this->api('https://mapi.alipay.com/gateway.do', 'GET', [
+                'service' => 'notify_verify',
+                'notify_id' => trim($return["notify_id"]),
+                'partner' => $this->partner,
+            ]);
         }
         //验证
         //$responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
@@ -173,12 +207,11 @@ class AliPay extends BaseGateway
 
     /**
      * 发送Http请求
-     * @param string $method request type.
-     * @param string $apiUrl request URL.
-     * @param array $params request params.
-     * @param array $headers additional request headers.
-     * @return array response.
-     * @throws \yii\base\Exception on failure.
+     * @param string $apiUrl
+     * @param string $method
+     * @param array $params
+     * @param array $headers
+     * @return string
      */
     public function api($apiUrl, $method = 'GET', array $params = [], array $headers = [])
     {

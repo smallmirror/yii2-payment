@@ -11,6 +11,7 @@ use Yii;
 use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use yuncms\payment\ModuleTrait;
 
 /**
  * Payment ActiveRecord model
@@ -23,7 +24,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string $pay_type
  * @property string $gateway 支付网关
  * @property string $pay_id
- * @property integer $pay_state
+ * @property integer $trade_type
+ * @property integer $trade_state
  * @property integer $currency
  * @property integer $money
  * @property integer $created_at
@@ -35,42 +37,24 @@ use yii\behaviors\TimestampBehavior;
  */
 class Payment extends ActiveRecord
 {
-    //在线支付
-    const TYPE_ONLINE = 1;
+    use ModuleTrait;
 
-    //离线
-    const TYPE_OFFLINE = 2;
+    //交易类型
+    const TYPE_NATIVE = 1;//原生扫码支付
+    const TYPE_JS_API = 2;//应用内JS API
+    const TYPE_APP = 3;//app支付
+    const TYPE_MWEB = 4;//H5支付
+    const TYPE_MICROPAY = 5;//刷卡支付
+    const TYPE_OFFLINE = 6;//离线（汇款、转账等）支付
 
-    //充值
-    const TYPE_RECHARGE = 3;
-
-    //购买金币
-    const TYPE_COIN = 4;
-
-    //原生扫码支付
-    const TRADE_TYPE_NATIVE = 1;
-
-    //公众号支付
-    const TRADE_TYPE_JSAPI = 2;
-
-    //app支付
-    const TRADE_TYPE_APP = 3;
-
-    //支付状态
-    //未支付
-    const STATUS_NOT_PAY = 0;
-    //支付成功
-    const STATUS_SUCCESS = 1;
-    //支付失败
-    const STATUS_FAILED = 2;
-    //转入退款
-    const STATUS_REFUND = 3;
-    //已关闭
-    const STATUS_CLOSED = 4;
-    //已撤销
-    const STATUS_REVOKED = 5;
-    //错误
-    const STATUS_ERROR = 6;
+    //交易状态
+    const STATE_NOT_PAY = 0;//未支付
+    const STATE_SUCCESS = 1;//支付成功
+    const STATE_FAILED = 2;//支付失败
+    const STATE_REFUND = 3;//转入退款
+    const STATE_CLOSED = 4;//已关闭
+    const STATE_REVOKED = 5;//已撤销
+    const STATE_ERROR = 6;//错误
 
     /**
      * @inheritdoc
@@ -98,19 +82,34 @@ class Payment extends ActiveRecord
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
             ['model_id', 'integer'],
             ['model', 'string', 'max' => 255],
-            ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
-            ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE, static::TYPE_COIN]],
 
-            ['trade_type', 'default', 'value' => static::TRADE_TYPE_NATIVE],
-            ['trade_type', 'in', 'range' => [ static::TRADE_TYPE_NATIVE, static::TRADE_TYPE_JSAPI, static::TRADE_TYPE_APP]],
-            ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
-            ['pay_state', 'in', 'range' => [static::STATUS_SUCCESS, static::STATUS_FAILED, static::STATUS_REFUND, static::STATUS_NOT_PAY, static::STATUS_CLOSED, static::STATUS_REVOKED, static::STATUS_ERROR]],
+            ['trade_type', 'default', 'value' => static::TYPE_NATIVE],
+            ['trade_type', 'in', 'range' => [
+                static::TYPE_NATIVE,//扫码付款
+                static::TYPE_JS_API,//嵌入式 JS SDK付款
+                static::TYPE_APP,//APP付款
+                static::TYPE_MWEB,//H5 Web 付款
+                static::TYPE_MICROPAY,//刷卡付款
+                static::TYPE_OFFLINE,//转账汇款
+            ]],
+
+            ['trade_state', 'default', 'value' => static::STATE_NOT_PAY],
+            ['trade_state', 'in', 'range' => [
+                static::STATE_NOT_PAY,
+                static::STATE_SUCCESS,
+                static::STATE_FAILED,
+                static::STATE_REFUND,
+                static::STATE_CLOSED,
+                static::STATE_REVOKED,
+                static::STATE_ERROR,
+            ]],
         ];
     }
 
     /** @inheritdoc */
     public function attributeLabels()
     {
+        ;
         return [
             'id' => Yii::t('payment', 'ID'),
             'model_id' => Yii::t('payment', 'Model ID'),
@@ -121,8 +120,8 @@ class Payment extends ActiveRecord
             'gateway' => Yii::t('payment', 'Payment Gateway'),
             'currency' => Yii::t('payment', 'Currency'),
             'money' => Yii::t('payment', 'Money'),
-            'pay_type' => Yii::t('payment', 'Pay Type'),
-            'pay_state' => Yii::t('payment', 'Pay State'),
+            'trade_type' => Yii::t('payment', 'Trade Type'),
+            'trade_state' => Yii::t('payment', 'Trade State'),
             'ip' => Yii::t('payment', 'Pay IP'),
             'note' => Yii::t('payment', 'Pay Note'),
             'created_at' => Yii::t('payment', 'Created At'),
@@ -190,37 +189,6 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * 计算用户获得的积分数量
-     * @param integer $money 钱数
-     * @param string $currency 币种
-     * @return float
-     */
-    private static function getCoin($money, $currency = 'CNY')
-    {
-        $coin = $money;
-        if ($currency == 'CNY') {//10比1
-            if ($money >= 200 && $money < 500) {
-                $coin += $coin * 0.5;
-            } else if ($money >= 500) {//冲多少送多少
-                $coin += $coin;
-            }
-        } else if ($currency == 'USD') {//2比1
-            if ($money >= 20) {
-                $coin += $coin * 0.1;
-            } else if ($money >= 50 && $money < 100) {
-                $coin += $coin * 0.2;
-            } else if ($money >= 100) {//冲多少送多少
-                $coin += $coin;
-            }
-        }
-        //test
-        if ($money == 0.01) {
-            $coin = 0.01;
-        }
-        return $coin;
-    }
-
-    /**
      * 设置支付状态
      * @param string $paymentId
      * @param int $status
@@ -232,34 +200,19 @@ class Payment extends ActiveRecord
         if (($payment = static::findOne(['id' => $paymentId])) == null) {
             return false;
         }
-        if (static::STATUS_SUCCESS == $payment->pay_state) {
+        if (static::STATE_SUCCESS == $payment->trade_state) {
             return true;
         }
-
         if ($status == true) {
-            $payment->updateAttributes(['pay_id' => $params['pay_id'], 'pay_state' => static::STATUS_SUCCESS, 'note' => $params['message']]);
-            if ($payment->pay_type == static::TYPE_ONLINE) {//在线支付订单
-                /** @var \yuncms\payment\OrderInterface $orderModel */
-                $orderModel = $payment->model;
-                if (!empty($payment->model_id) && !empty($orderModel)) {
-                    $orderModel::setPayStatus($payment->model_id, $paymentId, $status, $params);
-                }
-            } else if ($payment->pay_type == static::TYPE_OFFLINE) {//离线支付
-
-            } else if ($payment->pay_type == static::TYPE_RECHARGE) {//充值
-                /** @var \yuncms\wallet\Module $wallet */
-                $wallet = Yii::$app->getModule('wallet');
-                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->gateway . ' Recharge');
-            } else if ($payment->pay_type == static::TYPE_COIN) {//购买金币
-                /** @var \yuncms\wallet\Module $wallet */
-                $wallet = Yii::$app->getModule('wallet');
-                $wallet->wallet($payment->user_id, $payment->currency, $payment->money, 'recharge', $payment->gateway . ' Recharge');
-                $wallet->wallet($payment->user_id, $payment->currency, -$payment->money, 'purchase', 'Buy Coin');
-
-                $coin = static::getCoin($payment->money, $payment->currency);
-                /** @var \yuncms\user\Module $user */
-                $user = Yii::$app->getModule('user');
-                $user->coin($payment->user_id, 'purchase', $coin);
+            $payment->updateAttributes([
+                'pay_id' => $params['pay_id'],
+                'pay_state' => static::STATE_SUCCESS,
+                'note' => $params['message']
+            ]);
+            /** @var \yuncms\payment\OrderInterface $orderModel */
+            $orderModel = $payment->model;
+            if (!empty($payment->model_id) && !empty($orderModel)) {
+                $orderModel::setPayStatus($payment->model_id, $paymentId, $status, $params);
             }
             return true;
         }

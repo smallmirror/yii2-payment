@@ -19,7 +19,7 @@ class PaymentSearch extends Payment
     {
         return [
             [['id', 'model_id', 'pay_id', 'gateway', 'currency', 'ip', 'note'], 'safe'],
-            [['user_id', 'name', 'pay_type', 'pay_state'], 'integer'],
+            [['user_id', 'name', 'trade_type', 'trade_state'], 'integer'],
             [['money'], 'number'],
         ];
     }
@@ -63,8 +63,8 @@ class PaymentSearch extends Payment
             'user_id' => $this->user_id,
             'name' => $this->name,
             'money' => $this->money,
-            'pay_type' => $this->pay_type,
-            'pay_state' => $this->pay_state,
+            'trade_type' => $this->trade_type,
+            'trade_state' => $this->trade_state,
         ]);
 
         $query->andFilterWhere(['like', 'id', $this->id])

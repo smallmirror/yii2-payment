@@ -73,7 +73,7 @@ class PaymentController extends Controller
             return ActiveForm::validate($model);
         }
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('app','Create success.'));
+            Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Create success.'));
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -96,7 +96,7 @@ class PaymentController extends Controller
             return ActiveForm::validate($model);
         }
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->getSession()->setFlash('success', Yii::t('app','Update success.'));
+            Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Update success.'));
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
@@ -114,14 +114,15 @@ class PaymentController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-        Yii::$app->getSession()->setFlash('success', Yii::t('app','Delete success.'));
+        Yii::$app->getSession()->setFlash('success', Yii::t('app', 'Delete success.'));
         return $this->redirect(['index']);
     }
-     /**
-      * Batch Delete existing Payment model.
-      * If deletion is successful, the browser will be redirected to the 'index' page.
-      * @return mixed
-      */
+
+    /**
+     * Batch Delete existing Payment model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @return mixed
+     */
     public function actionBatchDelete()
     {
         if (($ids = Yii::$app->request->post('ids', null)) != null) {

@@ -94,7 +94,7 @@ class Wechat extends BaseGateway
             'mch_id' => $this->mchId,
             'nonce_str' => bin2hex(openssl_random_pseudo_bytes(8)),
             'notify_url' => $this->getNoticeUrl(),
-            'trade_type' => 'NATIVE',
+            'trade_type' => 'MWEB',
             'device_info' => 'WEB',
         ];
         return array_merge($defaultParams, $params);
@@ -112,7 +112,7 @@ class Wechat extends BaseGateway
             Yii::$app->session->setFlash(Yii::t('payment', 'The gateway does not support the current currency!'));
         } else {
             $params = $this->buildPaymentParameter([
-                'body' => !empty($payment->order_id) ? $payment->order_id : '充值',
+                'body' => !empty($payment->model_id) ? $payment->model_id : '充值',
                 'out_trade_no' => $payment->id,
                 'total_fee' => round($payment->money * 100),
                 'fee_type' => $payment->currency,
@@ -120,6 +120,7 @@ class Wechat extends BaseGateway
             ]);
             $params['sign'] = $this->createSign($params);
             $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
+            print_r($response->data);
             if (isset($response->data['prepay_id']) && isset($response->data['code_url'])) {
                 $payment->updateAttributes(['pay_id' => $response->data['prepay_id']]);
                 $paymentParams['url'] = $response->data['code_url'];
@@ -200,6 +201,26 @@ class Wechat extends BaseGateway
         $response = $this->api('https://api.mch.weixin.qq.com/pay/orderquery', 'POST', $params);
         if ($response->data['trade_state'] == 'SUCCESS') {
             Payment::setPayStatus($paymentId, true, ['pay_id' => $response->data['transaction_id'], 'message' => $response->data['return_msg']]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 关闭订单
+     * @param string $paymentId
+     * @return bool
+     */
+    public function closeOrder($paymentId){
+        $params = [
+            'appid' => $this->appId,
+            'mch_id' => $this->mchId,
+            'out_trade_no' => $paymentId,
+            'nonce_str' => bin2hex(openssl_random_pseudo_bytes(8)),
+        ];
+        $params['sign'] = $this->createSign($params);
+        $response = $this->api('https://api.mch.weixin.qq.com/pay/closeorder', 'POST', $params);
+        if ($response->data['trade_state'] == 'SUCCESS') {
             return true;
         }
         return false;
