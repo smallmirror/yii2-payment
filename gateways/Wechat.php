@@ -94,7 +94,7 @@ class Wechat extends BaseGateway
             'mch_id' => $this->mchId,
             'nonce_str' => bin2hex(openssl_random_pseudo_bytes(8)),
             'notify_url' => $this->getNoticeUrl(),
-            'trade_type' => 'MWEB',
+            'trade_type' => 'NATIVE',
             'device_info' => 'WEB',
         ];
         return array_merge($defaultParams, $params);

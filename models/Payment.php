@@ -109,7 +109,6 @@ class Payment extends ActiveRecord
     /** @inheritdoc */
     public function attributeLabels()
     {
-        ;
         return [
             'id' => Yii::t('payment', 'ID'),
             'model_id' => Yii::t('payment', 'Model ID'),
@@ -206,7 +205,7 @@ class Payment extends ActiveRecord
         if ($status == true) {
             $payment->updateAttributes([
                 'pay_id' => $params['pay_id'],
-                'pay_state' => static::STATE_SUCCESS,
+                'trade_state' => static::STATE_SUCCESS,
                 'note' => $params['message']
             ]);
             /** @var \yuncms\payment\OrderInterface $orderModel */
