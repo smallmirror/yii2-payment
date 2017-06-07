@@ -22,10 +22,12 @@ class M161230094930Create_payment_table extends Migration
             'user_id' => $this->integer()->comment('用户ID'),
             'name' => $this->integer(),
             'gateway' => $this->string(50)->notNull()->comment('支付网关'),
+            'trade_type' => $this->smallInteger()->notNull()->comment('交易类型'),
             'currency' => $this->string(20)->notNull()->comment('支付币种'),
             'money' => $this->decimal(10, 2)->notNull()->defaultValue(0.00)->comment('支付金额'),
             'pay_type' => $this->smallInteger()->notNull()->comment('付款类型'),
             'pay_state' => $this->smallInteger()->notNull(),
+
             'ip' => $this->string()->notNull()->comment('付款IP'),
             'note' => $this->text()->comment('注释'),
             'return_url' => $this->text()->comment('回调URL'),

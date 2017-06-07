@@ -37,12 +37,24 @@ class Payment extends ActiveRecord
 {
     //在线支付
     const TYPE_ONLINE = 1;
+
     //离线
     const TYPE_OFFLINE = 2;
+
     //充值
     const TYPE_RECHARGE = 3;
+
     //购买金币
     const TYPE_COIN = 4;
+
+    //原生扫码支付
+    const TRADE_TYPE_NATIVE = 1;
+
+    //公众号支付
+    const TRADE_TYPE_JSAPI = 2;
+
+    //app支付
+    const TRADE_TYPE_APP = 3;
 
     //支付状态
     //未支付
@@ -88,6 +100,9 @@ class Payment extends ActiveRecord
             ['model', 'string', 'max' => 255],
             ['pay_type', 'default', 'value' => static::TYPE_ONLINE],
             ['pay_type', 'in', 'range' => [static::TYPE_ONLINE, static::TYPE_OFFLINE, static::TYPE_RECHARGE, static::TYPE_COIN]],
+
+            ['trade_type', 'default', 'value' => static::TRADE_TYPE_NATIVE],
+            ['trade_type', 'in', 'range' => [ static::TRADE_TYPE_NATIVE, static::TRADE_TYPE_JSAPI, static::TRADE_TYPE_APP]],
             ['pay_state', 'default', 'value' => static::STATUS_NOT_PAY],
             ['pay_state', 'in', 'range' => [static::STATUS_SUCCESS, static::STATUS_FAILED, static::STATUS_REFUND, static::STATUS_NOT_PAY, static::STATUS_CLOSED, static::STATUS_REVOKED, static::STATUS_ERROR]],
         ];
