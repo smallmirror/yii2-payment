@@ -64,14 +64,18 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'label' => Yii::t('payment', 'Pay Type'),
                         'value' => function ($model) {
-                            if ($model->pay_type == Payment::TYPE_ONLINE) {
-                                return Yii::t('payment', 'Online Payment');
-                            } else if ($model->pay_type == Payment::TYPE_OFFLINE) {
+                            if ($model->trade_type == Payment::TYPE_NATIVE) {
+                                return Yii::t('payment', 'Native Payment');
+                            } else if ($model->trade_type == Payment::TYPE_MWEB) {
+                                return Yii::t('payment', 'Mweb Payment');
+                            } else if ($model->trade_type == Payment::TYPE_APP) {
+                                return Yii::t('payment', 'App Payment');
+                            } else if ($model->trade_type == Payment::TYPE_JS_API) {
+                                return Yii::t('payment', 'Jsapi Payment');
+                            } else if ($model->trade_type == Payment::TYPE_MICROPAY) {
+                                return Yii::t('payment', 'Micro Payment');
+                            } else if ($model->trade_type == Payment::TYPE_OFFLINE) {
                                 return Yii::t('payment', 'Office Payment');
-                            } else if ($model->pay_type == Payment::TYPE_RECHARGE) {
-                                return Yii::t('payment', 'Recharge Payment');
-                            } else if ($model->pay_type == Payment::TYPE_COIN) {
-                                return Yii::t('payment', 'Coin Payment');
                             }
                         },
                         'format' => 'raw'
@@ -79,19 +83,19 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'label' => Yii::t('payment', 'Pay State'),
                         'value' => function ($model) {
-                            if ($model->pay_state == Payment::STATUS_NOT_PAY) {
+                            if ($model->trade_state == Payment::STATE_NOT_PAY) {
                                 return Yii::t('payment', 'State Not Pay');
-                            } else if ($model->pay_state == Payment::STATUS_SUCCESS) {
+                            } else if ($model->trade_state == Payment::STATE_SUCCESS) {
                                 return Yii::t('payment', 'State Success');
-                            } else if ($model->pay_state == Payment::STATUS_FAILED) {
+                            } else if ($model->trade_state == Payment::STATE_FAILED) {
                                 return Yii::t('payment', 'State Failed');
-                            } else if ($model->pay_state == Payment::STATUS_REFUND) {
+                            } else if ($model->trade_state == Payment::STATE_REFUND) {
                                 return Yii::t('payment', 'State Refund');
-                            } else if ($model->pay_state == Payment::STATUS_CLOSED) {
+                            } else if ($model->trade_state == Payment::STATE_CLOSED) {
                                 return Yii::t('payment', 'State Close');
-                            } else if ($model->pay_state == Payment::STATUS_REVOKED) {
+                            } else if ($model->trade_state == Payment::STATE_REVOKED) {
                                 return Yii::t('payment', 'State Revoked');
-                            } else if ($model->pay_state == Payment::STATUS_ERROR) {
+                            } else if ($model->trade_state == Payment::STATE_ERROR) {
                                 return Yii::t('payment', 'State Error');
                             }
                         },
