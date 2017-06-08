@@ -8,10 +8,7 @@
 namespace yuncms\payment;
 
 use Yii;
-use yii\di\Instance;
 use yii\base\InvalidParamException;
-use yii\base\InvalidConfigException;
-use xutl\mq\ClientInterface;
 
 /**
  * Class Module
@@ -47,6 +44,33 @@ class Module extends \yii\base\Module
      * @var array
      */
     private $_gateways = [];
+
+
+    /**
+     * 是否是微信浏览器
+     * @return bool
+     */
+    public function isWeChat()
+    {
+        if (strpos(Yii::$app->request->userAgent, 'MicroMessenger')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 是否是支付宝浏览器
+     * @return bool
+     */
+    public function isAlipay()
+    {
+        if (strpos(Yii::$app->request->userAgent, 'Alipay')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * 设置网关
