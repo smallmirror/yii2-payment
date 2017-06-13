@@ -45,7 +45,6 @@ class Module extends \yii\base\Module
      */
     private $_gateways = [];
 
-
     /**
      * 是否是微信浏览器
      * @return bool
@@ -63,7 +62,7 @@ class Module extends \yii\base\Module
      * 是否是支付宝浏览器
      * @return bool
      */
-    public function isAlipay()
+    public function isAliPay()
     {
         if (strpos(Yii::$app->request->userAgent, 'Alipay')) {
             return true;
