@@ -83,9 +83,9 @@ class DefaultController extends Controller
                 return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
             }
         }
-        print_r($paymentParams);
-        exit;
-        //return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
+       // print_r($paymentParams);
+        //exit;
+        return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
     }
 
     /**
