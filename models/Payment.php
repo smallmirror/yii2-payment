@@ -84,7 +84,8 @@ class Payment extends ActiveRecord
     public function rules()
     {
         return [
-            [[ 'currency', 'trade_type', 'money'], 'required'],
+            [['currency', 'trade_type', 'money'], 'required'],
+            ['gateway', 'string', 'max' => 50],
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
             ['model_id', 'integer'],
             ['model', 'string', 'max' => 255],
