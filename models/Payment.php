@@ -21,18 +21,17 @@ use yuncms\payment\ModuleTrait;
  * @property integer $model_id 订单ID
  * @property string $model 订单模型
  * @property integer $user_id 用户ID
- * @property string $pay_type
  * @property string $gateway 支付网关
- * @property string $pay_id
- * @property integer $trade_type
- * @property integer $trade_state
- * @property integer $currency
- * @property integer $money
- * @property integer $created_at
- * @property integer $updated_at
+ * @property string $pay_id 支付号
+ * @property integer $trade_type 交易类型
+ * @property integer $trade_state 交易状态
+ * @property integer $currency 币种
+ * @property integer $money 签署
+ * @property integer $created_at 创建时间
+ * @property integer $updated_at 更新时间
  * @property string $note 备注
  * @property string $return_url 支付后的跳转URL
- * @property string $ip
+ * @property string $ip 用户IP
  * @package yuncms\payment
  */
 class Payment extends ActiveRecord
@@ -78,7 +77,7 @@ class Payment extends ActiveRecord
     public function rules()
     {
         return [
-            [['gateway', 'currency', 'pay_type', 'money'], 'required'],
+            [['gateway', 'currency', 'trade_type', 'money'], 'required'],
             ['id', 'unique', 'message' => Yii::t('payment', 'This id has already been taken')],
             ['model_id', 'integer'],
             ['model', 'string', 'max' => 255],
