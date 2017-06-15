@@ -120,7 +120,7 @@ class Wechat extends BaseGateway
             ]);
             $params['sign'] = $this->createSign($params);
             $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
-            print_r($response->data);
+            //print_r($response->data);
             if (isset($response->data['prepay_id']) && isset($response->data['code_url'])) {
                 $payment->updateAttributes(['pay_id' => $response->data['prepay_id']]);
                 $paymentParams['url'] = $response->data['code_url'];
