@@ -10,6 +10,7 @@ namespace yuncms\payment\models;
 use Yii;
 use yii\db\Query;
 use yii\db\ActiveRecord;
+use yii\db\BaseActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yuncms\payment\ModuleTrait;
 
@@ -70,6 +71,12 @@ class Payment extends ActiveRecord
     {
         return [
             TimestampBehavior::className(),
+            [
+                'class' => 'yii\behaviors\BlameableBehavior',
+                'attributes' => [
+                    BaseActiveRecord::EVENT_BEFORE_INSERT => ['user_id'],
+                ],
+            ],
         ];
     }
 
@@ -163,7 +170,6 @@ class Payment extends ActiveRecord
         if (parent::beforeSave($insert)) {
             if ($insert) {
                 $this->id = $this->generatePaymentId();
-                $this->user_id = Yii::$app->user->getId();
                 $this->ip = Yii::$app->request->userIP;
             }
             return true;
@@ -206,7 +212,7 @@ class Payment extends ActiveRecord
                 'pay_id' => $params['pay_id'],
                 'trade_state' => static::STATE_SUCCESS,
                 'note' => $params['message']
-            ]);
+            ]);//标记支付已经完成
             /** @var \yuncms\payment\OrderInterface $orderModel */
             $orderModel = $payment->model;
             if (!empty($payment->model_id) && !empty($orderModel)) {
