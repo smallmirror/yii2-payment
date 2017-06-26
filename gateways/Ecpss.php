@@ -64,6 +64,11 @@ class Ecpss extends BaseGateway
         $this->redirectUrl = $this->composeUrl($this->redirectUrl, ['_input_charset' => $this->charset]);
     }
 
+    public function getTitle()
+    {
+        return Yii::t('payment','Ecpass Pay');
+    }
+
     /**
      * 查询支付是否成功，对账作用
      * @param string $paymentId

@@ -24,6 +24,7 @@ use yuncms\payment\ModuleTrait;
  * @property integer $user_id 用户ID
  * @property string $gateway 支付网关
  * @property string $pay_id 支付号
+ * @property string $name 付款事由
  * @property integer $trade_type 交易类型
  * @property integer $trade_state 交易状态
  * @property integer $currency 币种

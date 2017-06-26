@@ -63,6 +63,11 @@ class Wechat extends BaseGateway
         }
     }
 
+    public function getTitle()
+    {
+        return Yii::t('payment','Wechat Pay');
+    }
+
     /**
      * 获取Http Client
      * @return Client

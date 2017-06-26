@@ -74,6 +74,11 @@ class AliPay extends BaseGateway
         $this->redirectUrl = $this->composeUrl($this->redirectUrl, ['_input_charset' => $this->charset]);
     }
 
+    public function getTitle()
+    {
+        return Yii::t('payment','Alipay');
+    }
+
     /**
      * 包装付款参数
      * @param array $params

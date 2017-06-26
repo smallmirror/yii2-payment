@@ -21,4 +21,8 @@ use yuncms\payment\models\Payment;
 class Qpay extends BaseGateway
 {
 
+    public function getTitle()
+    {
+        return Yii::t('payment','Qpay');
+    }
 }

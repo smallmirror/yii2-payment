@@ -41,6 +41,11 @@ class Wallet extends BaseGateway
         }
     }
 
+    public function getTitle()
+    {
+        return Yii::t('payment','Wallet Pay');
+    }
+
     /**
      * 支付
      * @param Payment $payment
