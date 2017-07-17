@@ -42,7 +42,7 @@ class Payment extends ActiveRecord
 
     //交易类型
     const TYPE_NATIVE = 1;//原生扫码支付
-    const TYPE_JS_API = 2;//应用内JS API
+    const TYPE_JS_API = 2;//应用内JS API,如微信
     const TYPE_APP = 3;//app支付
     const TYPE_MWEB = 4;//H5支付
     const TYPE_MICROPAY = 5;//刷卡支付
