@@ -46,6 +46,14 @@ class Wechat extends BaseGateway
 
     public $currencies = ['CNY', 'USD'];
 
+    public $tradeTypeMap = [
+        1 => 'NATIVE',//原生扫码支付
+        2 => 'JSAPI',//应用内JS API,如微信
+        3 => 'APP',//app支付
+        4 => 'MWEB',//H5支付
+        5 => 'MICROPAY',//刷卡支付
+    ];
+
     /**
      * @inheritdoc
      */
@@ -65,7 +73,7 @@ class Wechat extends BaseGateway
 
     public function getTitle()
     {
-        return Yii::t('payment','Wechat Pay');
+        return Yii::t('payment', 'Wechat Pay');
     }
 
     /**
@@ -99,7 +107,7 @@ class Wechat extends BaseGateway
             'mch_id' => $this->mchId,
             'nonce_str' => bin2hex(openssl_random_pseudo_bytes(8)),
             'notify_url' => $this->getNoticeUrl(),
-            'trade_type' => 'NATIVE',
+            'trade_type' => $this->tradeTypeMap[$params['trade_type']],
             'device_info' => 'WEB',
         ];
         return array_merge($defaultParams, $params);
@@ -122,6 +130,7 @@ class Wechat extends BaseGateway
                 'total_fee' => round($payment->money * 100),
                 'fee_type' => $payment->currency,
                 'spbill_create_ip' => $payment->ip,
+                'trade_type' => $payment->trade_type,
             ]);
             $params['sign'] = $this->createSign($params);
             $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);
@@ -216,7 +225,8 @@ class Wechat extends BaseGateway
      * @param string $paymentId
      * @return bool
      */
-    public function closeOrder($paymentId){
+    public function closeOrder($paymentId)
+    {
         $params = [
             'appid' => $this->appId,
             'mch_id' => $this->mchId,
