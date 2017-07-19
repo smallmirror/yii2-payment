@@ -46,50 +46,7 @@ class DefaultController extends Controller
             ],
         ];
     }
-
-    /**
-     * 支付默认表单
-     * @return string
-     */
-    public function actionIndex()
-    {
-        $model = new Payment();
-        $model->trade_type = Payment::TYPE_JS_API;
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['/payment/default/pay', 'id' => $model->id]);
-        }
-        return $this->render('index', ['model' => $model]);
-    }
-
-    /**
-     * 去付款
-     * @param int $id
-     * @return string
-     * @throws NotFoundHttpException
-     */
-    public function actionPay($id)
-    {
-        $payment = $this->findModel($id);
-        if (!$this->module->hasGateway($payment->gateway)) {
-            throw new NotFoundHttpException("Unknown payment gateway '{$payment->gateway}'");
-        }
-        /** @var \yuncms\payment\BaseGateway $gateway */
-        $gateway = $this->module->getGateway($payment->gateway);
-        $paymentParams = [];
-        $gateway->payment($payment, $paymentParams);
-
-        if ($paymentParams) {
-            if (Yii::$app->request->isAjax) {
-                return $this->renderPartial('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
-            } else {
-                return $this->render('pay', ['payment' => $payment, 'paymentParams' => $paymentParams]);
-            }
-        }
-        // print_r($paymentParams);
-        //exit;
-        return $this->redirect(['/payment/default/index', 'id' => $payment->id]);
-    }
-
+   
     /**
      * 支付后回跳页面
      * @param string $id

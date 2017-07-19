@@ -5,10 +5,7 @@ use yii\bootstrap\ActiveForm;
 use yii\helpers\ArrayHelper;
 ?>
 <div class="row">
-    <div class="col-md-2">
-        <?= $this->render('@yuncms/user/views/_profile_menu') ?>
-    </div>
-    <div class="col-md-10">
+    <div class="col-md-12">
         <h2 class="h3 profile-title"><?= Yii::t('payment', 'Payment') ?></h2>
         <div class="row">
             <div class="col-md-12">
