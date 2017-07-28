@@ -5,7 +5,7 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace yuncms\payment\controllers;
+namespace yuncms\payment\frontend\controllers;
 
 
 use Yii;

@@ -5,7 +5,8 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace yuncms\payment\assets;
+namespace yuncms\payment\frontend\assets;
+
 
 use yii\web\AssetBundle;
 /**
@@ -14,7 +15,7 @@ use yii\web\AssetBundle;
  */
 class PaymentAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/yuncms/yii2-payment/views/assets';
+    public $sourcePath = '@yuncms/payment/frontend/views/assets';
 
     /**
      * @var array
