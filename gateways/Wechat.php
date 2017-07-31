@@ -143,7 +143,7 @@ class Wechat extends BaseGateway
             $params['sign'] = $this->createSign($params);
             /** @var \yii\httpclient\Response $response */
             $response = $this->api('https://api.mch.weixin.qq.com/pay/unifiedorder', 'POST', $params);//统一下单
-            if ($response->isOk && isset($response->data['return_code']) == 'SUCCESS') {
+            if ($response->isOk && $response->data['return_code'] == 'SUCCESS') {
                 $payment->updateAttributes(['pay_id' => $response->data['prepay_id']]);
                 if ($payment->trade_type == Payment::TYPE_JS_API) {
                     $paymentParams = [
@@ -160,8 +160,9 @@ class Wechat extends BaseGateway
                     $paymentParams['data'] = (new QrCode())->setText($response->data['code_url'])->setSize(240)->setPadding(10)->getDataUri();
                     return;
                 }
+            } else {
+                $paymentParams = $response->data;
             }
-            Yii::$app->session->setFlash(Yii::t('payment', 'The server is busy. Please try again!'));
         }
     }
 
