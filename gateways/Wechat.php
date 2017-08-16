@@ -298,7 +298,7 @@ class Wechat extends BaseGateway
 
     /**
      * 生成签名
-     * @return 签名，本函数不覆盖sign成员变量，如要设置签名需要调用SetSign方法赋值
+     * @return string 签名，本函数不覆盖sign成员变量，如要设置签名需要调用SetSign方法赋值
      */
     public function makeSign(array $parameters)
     {
@@ -342,7 +342,7 @@ class Wechat extends BaseGateway
      *
      * 产生随机字符串，不长于32位
      * @param int $length
-     * @return 产生的随机字符串
+     * @return string 产生的随机字符串
      */
     public static function getNonceStr($length = 32)
     {
