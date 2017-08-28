@@ -130,9 +130,9 @@ class AliPay extends BaseGateway
             $paraFilter = $this->paraFilter($params);
             $paraSort = $this->argSort($paraFilter);
             //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-            $prestr = $this->createLinkString($paraSort);
+            $preStr = $this->createLinkString($paraSort);
 
-            $params['sign'] = $this->createSign($prestr);
+            $params['sign'] = $this->createSign($preStr);
             $params['sign_type'] = strtoupper($this->signType);
             $this->getRedirectResponse($params);
         }
