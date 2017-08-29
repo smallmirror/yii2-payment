@@ -3,7 +3,7 @@
  */
 
 function isWechat(){
-    return navigator.userAgent.indexOf('MicroMessenger') > -1
+    return navigator.userAgent.indexOf('MicroMessenger') > -1;
 }
 
 /**
