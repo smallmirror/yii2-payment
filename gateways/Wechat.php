@@ -296,6 +296,8 @@ class Wechat extends BaseGateway
         return $buff;
     }
 
+
+
     /**
      * 生成签名
      * @return string 签名，本函数不覆盖sign成员变量，如要设置签名需要调用SetSign方法赋值
