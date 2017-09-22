@@ -63,7 +63,7 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                     'model_id',
                     'pay_id',
                     'user_id',
-                    'user.username',
+                    'user.nickname',
                     'name',
                     'gateway',
                     'currency',
