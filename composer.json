@@ -26,7 +26,7 @@
         "class": "yii\\i18n\\PhpMessageSource",
         "basePath": "@yuncms/payment/message"
       },
-      "migrationNamespace": "yuncms/payment/migrations",
+      "migrationNamespace": "yuncms\\payment\\migrations",
       "backend": {
         "class": "yuncms\\payment\\backend\\Module"
       },
