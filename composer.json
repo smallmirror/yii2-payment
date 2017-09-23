@@ -24,7 +24,7 @@
       "name": "payment",
       "i18n": {
         "class": "yii\\i18n\\PhpMessageSource",
-        "basePath": "@yuncms/payment/message"
+        "basePath": "yuncms/payment/message"
       },
       "migrationNamespace": "@yuncms/payment/migrations",
       "backend": {
