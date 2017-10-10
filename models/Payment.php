@@ -13,6 +13,7 @@ use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
 use yii\behaviors\TimestampBehavior;
 use yuncms\payment\ModuleTrait;
+use yuncms\user\models\User;
 
 /**
  * Payment ActiveRecord model
@@ -41,21 +42,21 @@ class Payment extends ActiveRecord
     use ModuleTrait;
 
     //交易类型
-    const TYPE_NATIVE = 1;//原生扫码支付
-    const TYPE_JS_API = 2;//应用内JS API,如微信
-    const TYPE_APP = 3;//app支付
-    const TYPE_MWEB = 4;//H5支付
-    const TYPE_MICROPAY = 5;//刷卡支付
-    const TYPE_OFFLINE = 6;//离线（汇款、转账等）支付
+    const TYPE_NATIVE = 0b1;//原生扫码支付
+    const TYPE_JS_API = 0b10;//应用内JS API,如微信
+    const TYPE_APP = 0b11;//app支付
+    const TYPE_MWEB = 0b100;//H5支付
+    const TYPE_MICROPAY = 0b101;//刷卡支付
+    const TYPE_OFFLINE = 0b110;//离线（汇款、转账等）支付
 
     //交易状态
-    const STATE_NOT_PAY = 0;//未支付
-    const STATE_SUCCESS = 1;//支付成功
-    const STATE_FAILED = 2;//支付失败
-    const STATE_REFUND = 3;//转入退款
-    const STATE_CLOSED = 4;//已关闭
-    const STATE_REVOKED = 5;//已撤销
-    const STATE_ERROR = 6;//错误
+    const STATE_NOT_PAY = 0b0;//未支付
+    const STATE_SUCCESS = 0b1;//支付成功
+    const STATE_FAILED = 0b10;//支付失败
+    const STATE_REFUND = 0b11;//转入退款
+    const STATE_CLOSED = 0b100;//已关闭
+    const STATE_REVOKED = 0b101;//已撤销
+    const STATE_ERROR = 0b110;//错误
 
     /**
      * @inheritdoc
@@ -142,7 +143,7 @@ class Payment extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**

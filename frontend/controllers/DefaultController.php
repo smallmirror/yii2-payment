@@ -48,7 +48,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * 支付默认表单
+     * 预下单
      * @return string
      */
     public function actionIndex()
