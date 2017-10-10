@@ -11,6 +11,7 @@
   "require": {
     "yiisoft/yii2": "~2.0.6",
     "yuncms/yii2-user": "~2.0",
+    "xutl/payment": "~1.0",
     "endroid/qrcode": "~1.0",
     "whichbrowser/parser": "~2.0"
   },
