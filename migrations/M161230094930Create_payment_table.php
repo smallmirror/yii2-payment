@@ -19,7 +19,7 @@ class M161230094930Create_payment_table extends Migration
             'model_id' => $this->integer()->comment('Model ID'),
             'model' => $this->string()->comment('Model'),
             'pay_id' => $this->string()->comment('Pay ID'),
-            'user_id' => $this->integer()->comment('User ID'),
+            'user_id' => $this->integer()->unsigned()->comment('User ID'),
             'name' => $this->integer()->comment('Payment Name'),
             'gateway' => $this->string(50)->comment('Gateway'),
             'currency' => $this->string(20)->notNull()->comment('Currency'),

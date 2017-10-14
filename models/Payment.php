@@ -8,6 +8,7 @@
 namespace yuncms\payment\models;
 
 use Yii;
+use yii\behaviors\AttributeBehavior;
 use yii\db\Query;
 use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
@@ -78,6 +79,24 @@ class Payment extends ActiveRecord
                 'attributes' => [
                     BaseActiveRecord::EVENT_BEFORE_INSERT => ['user_id'],
                 ],
+            ],
+            [
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_INSERT => 'id',
+                ],
+                'value' => function ($event) {
+                    return $this->generatePaymentId();
+                }
+            ],
+            [
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'ip',
+                ],
+                'value' => function ($event) {
+                    return Yii::$app->request->userIP;
+                }
             ],
         ];
     }
@@ -163,23 +182,19 @@ class Payment extends ActiveRecord
         return $id;
     }
 
-    /**
-     * 保存前
-     * @param bool $insert
-     * @return bool
-     */
-    public function beforeSave($insert)
-    {
-        if (parent::beforeSave($insert)) {
-            if ($insert) {
-                $this->id = $this->generatePaymentId();
-                $this->ip = Yii::$app->request->userIP;
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     * 保存前
+//     * @param bool $insert
+//     * @return bool
+//     */
+//    public function beforeSave($insert)
+//    {
+//        if (parent::beforeSave($insert)) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * 快速创建实例
